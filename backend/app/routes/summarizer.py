@@ -110,6 +110,13 @@ def summarize_text(req: SummarizeRequest):
             detail=f"Invalid summarization method '{req.method}'. Allowed methods: 'frequency', 'tfidf', 'hybrid'."
         )
 
+    # Apply informative lead position prior (Luhn & Edmundson lead sentence premise)
+    for idx_s, s_item in enumerate(scored):
+        if idx_s == 0:
+            s_item["score"] = round(s_item["score"] * 1.15, 4)
+        elif idx_s == 1:
+            s_item["score"] = round(s_item["score"] * 1.06, 4)
+
     # Step 6: Sentence Ranking & Chronological Top-K Selection
     summary, annotated_sentences = RankingService.rank_and_select(
         scored,

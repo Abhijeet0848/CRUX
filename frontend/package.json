@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"cyan,magenta\" \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:frontend": "vite",
-    "dev:backend": "python -c \"import sys, os; sys.path.insert(0, os.path.abspath('..')); import uvicorn; uvicorn.run('backend.app.main:app', host='0.0.0.0', port=8000, reload=True)\"",
+    "dev:backend": "python -c \"import sys, os; sys.path.insert(0, os.path.abspath('..')); import uvicorn; uvicorn.run('backend.app.main:app', host='0.0.0.0', port=8000, reload=True, reload_dirs=['../backend'])\"",
     "build": "vite build",
     "preview": "vite preview"
   },

@@ -116,7 +116,8 @@ class Preprocessor:
         # 3. Strip standalone URLs
         text = re.sub(r'https?://\S+', '', text)
         
-        # 4. Strip citation brackets: \[50\], [50], [1][2], [edit], [citation needed]
+        # 4. Strip citation brackets: \[50\], [50], [1][2], [edit], [citation needed], [nb 1], [note 1]
+        text = re.sub(r'\[\s*(?:nb\s*\d+|note\s*\d+|\d+|[a-zA-Z]{1,4}\b|edit|citation needed)\s*\]', '', text, flags=re.IGNORECASE)
         text = re.sub(r'(?:\\\[|\[)\s*\d+\s*(?:\\\]|\])', '', text)
         text = re.sub(r'\[\s*(?:edit|citation needed|[a-zA-Z\s]+)\s*\]', '', text)
         
@@ -124,8 +125,7 @@ class Preprocessor:
         text = re.sub(r'\\([\[\]\(\)])', r'\1', text)
         
         # 6. Standardize carriage returns and whitespace
-        text = text.replace("\r\n", "\n").replace("\r", "\n")
-        text = re.sub(r"[ \t]+", " ", text)
+        text = re.sub(r'\s+', ' ', text)
         return text.strip()
 
     @staticmethod
@@ -133,7 +133,7 @@ class Preprocessor:
         """
         Step 2: Sentence Boundary Segmentation (Multilingual: English . ! ? and Hindi । ॥ |)
         - Handles sentence terminals (. ! ? । ॥ |) followed by closing quotes, parentheses, brackets
-        - Accurately segments both standard paragraphs and newline-separated texts
+        - Accurately segments both standard paragraphs and newline-separated texts without dropping unpunctuated lines
         """
         if not cleaned_text:
             return []
@@ -142,7 +142,7 @@ class Preprocessor:
         normalized = re.sub(r'\s*\|\s*', '। ', cleaned_text)
         
         # Pattern captures sentence body and its terminal punctuation (. ! ? । ॥)
-        pattern = r'([^.!?।॥\n]+(?:[.!?।॥]+["\'”’\)\]]*|$))'
+        pattern = r'([^.!?।॥]+(?:[.!?।॥]+["\'”’\)\]]*|$))'
         raw_sentences = re.findall(pattern, normalized)
         
         sentences = []
