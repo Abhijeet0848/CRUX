@@ -1,4 +1,19 @@
 import React, { useState } from 'react';
+import {
+  FileSearch,
+  BarChart3,
+  Scissors,
+  Filter,
+  GitBranch,
+  Zap,
+  Sparkles,
+  AlertCircle,
+  Loader2,
+  RefreshCw,
+  Layers,
+} from 'lucide-react';
+import EmptyState from './EmptyState';
+import { emptyStatesConfig } from '../config/emptyStates';
 
 const COMMON_STOP_WORDS = new Set([
   'a', 'about', 'above', 'after', 'again', 'against', 'all', 'am', 'an', 'and', 'any', 'are', 'aren',
@@ -13,10 +28,89 @@ const COMMON_STOP_WORDS = new Set([
   'where', 'which', 'while', 'who', 'whom', 'why', 'with', 'would', 'you', 'your', 'yours', 'yourself'
 ]);
 
-export default function NLPAnalysis({ summaryData, originalText }) {
+export default function NLPAnalysis({
+  summaryData,
+  originalText,
+  loading = false,
+  error = '',
+  onGoToSummarizer,
+  onRetry,
+}) {
   const [activeTab, setActiveTab] = useState('all'); // 'all' | 'sentences' | 'tokens' | 'stopwords' | 'lemmas'
 
-  if (!summaryData) return null;
+  // 1. Loading State (Requirement 7)
+  if (loading) {
+    return (
+      <div className="min-h-[calc(100vh-200px)] flex items-center justify-center p-4">
+        <div className="bg-white border border-slate-200 rounded-2xl px-10 py-12 text-center shadow-sm max-w-2xl w-full mx-auto space-y-6">
+          <div className="flex flex-col items-center justify-center gap-3">
+            <Loader2 className="w-7 h-7 text-indigo-500 animate-spin" />
+            <h3 className="text-lg font-bold text-slate-900">Analyzing your text...</h3>
+          </div>
+          <div className="space-y-3.5 max-w-md mx-auto pt-2">
+            <div className="h-4 bg-slate-200 rounded animate-pulse w-full"></div>
+            <div className="h-4 bg-slate-200 rounded animate-pulse w-4/5 mx-auto"></div>
+            <div className="h-4 bg-slate-200 rounded animate-pulse w-2/3 mx-auto"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Error State (Requirement 8)
+  if (error) {
+    return (
+      <div className="min-h-[calc(100vh-200px)] flex items-center justify-center p-4">
+        <div className="bg-red-50 border border-red-200 rounded-2xl px-10 py-12 text-center shadow-sm max-w-2xl w-full mx-auto space-y-5">
+          <div className="w-16 h-16 rounded-2xl bg-red-100 border border-red-200 flex items-center justify-center mx-auto text-red-600 shadow-xs">
+            <AlertCircle className="w-8 h-8 text-red-600" />
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-red-900 mb-1.5">Couldn't load analysis</h3>
+            <p className="text-xs sm:text-sm text-red-700 max-w-md mx-auto leading-relaxed">
+              {error || 'Please try running the summarizer again.'}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            {onRetry && (
+              <button
+                type="button"
+                onClick={onRetry}
+                className="inline-flex items-center gap-2 text-indigo-600 hover:bg-indigo-50 border border-indigo-200 rounded-xl px-5 py-2.5 font-medium transition-colors cursor-pointer shadow-xs focus-visible:ring-2 focus-visible:ring-indigo-500 focus:outline-none"
+              >
+                <RefreshCw className="w-4 h-4" />
+                <span>Retry</span>
+              </button>
+            )}
+            {onGoToSummarizer && (
+              <button
+                type="button"
+                onClick={onGoToSummarizer}
+                className="inline-flex items-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl transition-all shadow-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-indigo-500 focus:outline-none"
+              >
+                <span>Go to Summarizer</span>
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 3. No-source-text / Empty State
+  if (!summaryData) {
+    const config = emptyStatesConfig.nlpAnalysis;
+    return (
+      <EmptyState
+        icon={config.icon}
+        accent={config.accent}
+        title={config.title}
+        description={config.description}
+        preview={config.preview}
+        onPrimary={onGoToSummarizer}
+      />
+    );
+  }
 
   const sentences = summaryData.sentences || [];
   const prepMeta = summaryData.preprocessing_meta || {};
@@ -316,3 +410,5 @@ export default function NLPAnalysis({ summaryData, originalText }) {
     </div>
   );
 }
+
+export { NLPAnalysis as NlpAnalysisPage };

@@ -126,6 +126,8 @@ class Preprocessor:
         
         # 6. Standardize carriage returns and whitespace
         text = re.sub(r'\s+', ' ', text)
+        # 7. Normalize whitespace immediately before punctuation marks
+        text = re.sub(r'\s+([,.!?;:।॥])', r'\1', text)
         return text.strip()
 
     @staticmethod
@@ -160,13 +162,15 @@ class Preprocessor:
         return sentences
 
     @staticmethod
-    def tokenize(text: str) -> List[str]:
+    def tokenize(text: str, lowercase: bool = True) -> List[str]:
         """
-        Step 3 & 4: Word Tokenization (Supports both Latin English and Devanagari Hindi)
+        Step 3 & 4: Word Tokenization & Lowercasing (Supports both Latin English and Devanagari Hindi)
         Excludes Devanagari sentence terminators (। \u0964 and ॥ \u0965) from word tokens.
         """
         if not text:
             return []
+        if lowercase:
+            text = text.lower()
         # \u0900-\u0963 and \u0966-\u097F covers Devanagari letters, matras, signs, and numbers without \u0964/\u0965 (danda)
         return re.findall(r"[\u0900-\u0963\u0966-\u097Fa-zA-Z0-9'-]+", text)
 

@@ -109,12 +109,12 @@ class DocumentParser:
                 raise
             except Exception as e:
                 raise HTTPException(
-                    status_code=getattr(status, "HTTP_422_UNPROCESSABLE_CONTENT", status.HTTP_422_UNPROCESSABLE_ENTITY),
+                    status_code=getattr(status, "HTTP_422_UNPROCESSABLE_CONTENT", 422),
                     detail=f"PDF extraction failed. File may be encrypted, scanned image, or damaged: {str(e)}"
                 )
 
         raise HTTPException(
-            status_code=getattr(status, "HTTP_422_UNPROCESSABLE_CONTENT", status.HTTP_422_UNPROCESSABLE_ENTITY),
+            status_code=getattr(status, "HTTP_422_UNPROCESSABLE_CONTENT", 422),
             detail="No readable text found in PDF. Ensure the PDF contains selectable text (not scanned images)."
         )
 

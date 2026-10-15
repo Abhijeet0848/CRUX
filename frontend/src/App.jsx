@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import Header from './components/Header';
-import InputSection from './components/InputSection';
-import OutputSection from './components/OutputSection';
+import React, { useState, useEffect } from 'react';
+import { BarChart3, Zap } from 'lucide-react';
+import NavBar from './components/NavBar';
+import SummarizePage from './components/SummarizePage';
 import StatsGrid from './components/StatsGrid';
-import ScoreChart from './components/ScoreChart';
-import SentenceTable from './components/SentenceTable';
 import NLPAnalysis from './components/NLPAnalysis';
-import PipelineInspector from './components/PipelineInspector';
-import ComparisonSection from './components/ComparisonSection';
+import SentenceScoresPage from './components/SentenceScoresPage';
+import StatsChartsPage from './components/StatsChartsPage';
+import CompareMethodsPage from './components/CompareMethodsPage';
 import HistoryPage from './components/HistoryPage';
+import AccuracyCheckPage from './components/AccuracyCheckPage';
 import RougeModal from './components/RougeModal';
 import BottomNavBar from './components/BottomNavBar';
 import { summarizeText, compareAlgorithms } from './services/api';
@@ -19,8 +19,7 @@ export default function App() {
   const [text, setText] = useState('');
   const [method, setMethod] = useState('hybrid');
   const [numSentences, setNumSentences] = useState(3);
-  const [weightFreq, setWeightFreq] = useState(0.5);
-  const [weightTfidf, setWeightTfidf] = useState(0.5);
+  const [frequencyWeight, setFrequencyWeight] = useState(50); // 0-100% single state for auto-balancing
 
   const [summaryData, setSummaryData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -32,6 +31,11 @@ export default function App() {
   const [referenceSummary, setReferenceSummary] = useState('');
 
   const [isRougeOpen, setIsRougeOpen] = useState(false);
+
+  // Clear any stale errors whenever navigating between tabs
+  useEffect(() => {
+    setError('');
+  }, [currentView]);
 
   const handleSummarize = async () => {
     if (!text.trim()) {
@@ -46,8 +50,8 @@ export default function App() {
         text,
         method,
         num_sentences: numSentences,
-        weight_frequency: weightFreq,
-        weight_tfidf: weightTfidf,
+        weight_frequency: frequencyWeight / 100,
+        weight_tfidf: (100 - frequencyWeight) / 100,
       });
       setSummaryData(data);
     } catch (err) {
@@ -60,7 +64,6 @@ export default function App() {
 
   const handleRunCompare = async () => {
     if (!text.trim()) {
-      setError('Please provide an article in the Summarizer Studio before running comparison.');
       return;
     }
     setError('');
@@ -70,8 +73,8 @@ export default function App() {
       const data = await compareAlgorithms({
         text,
         num_sentences: numSentences,
-        weight_frequency: weightFreq,
-        weight_tfidf: weightTfidf,
+        weight_frequency: frequencyWeight / 100,
+        weight_tfidf: (100 - frequencyWeight) / 100,
         reference_summary: referenceSummary,
       });
       setCompareData(data);
@@ -90,6 +93,9 @@ export default function App() {
     if (record.method) {
       setMethod(record.method);
     }
+    if (record.weight_frequency !== undefined && record.weight_frequency !== null) {
+      setFrequencyWeight(Math.round(record.weight_frequency * 100));
+    }
     setSummaryData({
       summary: record.summary,
       method: record.method,
@@ -105,81 +111,86 @@ export default function App() {
   };
 
   const renderEmptyState = (title, description) => (
-    <div className="bg-white border border-slate-200 rounded-2xl p-10 text-center shadow-xs my-6 max-w-xl mx-auto">
-      <div className="w-14 h-14 bg-blue-50 text-blue-700 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-3 border border-blue-200 shadow-2xs">
-        📊
+    <div className="min-h-[calc(100vh-250px)] flex items-center justify-center p-4">
+      <div className="bg-white border border-slate-200 rounded-2xl p-8 sm:px-10 sm:py-12 text-center shadow-sm max-w-xl w-full mx-auto space-y-5">
+        <div className="w-16 h-16 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center mx-auto text-indigo-600 shadow-xs">
+          <BarChart3 className="w-8 h-8 text-indigo-600" />
+        </div>
+        <div className="space-y-1.5">
+          <h3 className="text-lg font-bold text-slate-900">{title}</h3>
+          <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">{description}</p>
+        </div>
+        <div className="pt-2">
+          <button
+            type="button"
+            onClick={() => setCurrentView('workspace')}
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all rounded-xl px-6 py-3 font-medium cursor-pointer shadow-md focus-visible:ring-2 focus-visible:ring-indigo-500 focus:outline-none"
+          >
+            <Zap className="w-[18px] h-[18px]" />
+            <span>Go to Summarizer</span>
+          </button>
+        </div>
       </div>
-      <h3 className="text-base font-bold text-slate-900 mb-1.5">{title}</h3>
-      <p className="text-xs sm:text-sm text-slate-600 font-normal mb-5 leading-relaxed">{description}</p>
-      <button
-        onClick={() => setCurrentView('workspace')}
-        className="inline-flex items-center gap-2 px-6 py-2.5 text-xs sm:text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-xs hover:shadow-sm transition-all duration-200 cursor-pointer"
-      >
-        <span>⚡</span>
-        <span>Go to Summarizer</span>
-      </button>
     </div>
   );
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-slate-100 via-slate-50 to-slate-100/90 text-slate-900 font-sans">
-      {/* Top Navigation */}
-      <Header
+    /* Root Wrapper: h-screen w-screen max-w-full overflow-hidden flex flex-col (prevents page-level scrollbars) */
+    <div className="h-screen w-screen max-w-full overflow-hidden flex flex-col bg-gradient-to-b from-slate-100 via-slate-50 to-slate-100/90 text-slate-900 font-sans">
+      {/* Top Navigation: flex-shrink-0 (pinned at top) */}
+      <NavBar
         currentView={currentView}
         setView={setCurrentView}
         onOpenRouge={() => setIsRougeOpen(true)}
         hasSummary={!!summaryData}
       />
 
-      {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4 pb-28 lg:pb-6">
+      {/* Main Container: flex-1 w-full max-w-full min-h-0 min-w-0 px-4 lg:px-6 py-4 flex flex-col overflow-x-hidden lg:overflow-hidden */}
+      {/* min-w-0 prevents horizontal overflow and allows flex/grid children to shrink below intrinsic content width */}
+      <main className="flex-1 w-full max-w-full min-h-0 min-w-0 px-4 lg:px-6 py-4 flex flex-col overflow-x-hidden overflow-y-auto lg:overflow-hidden">
         {/* Error Alert */}
         {error && (
-          <div className="mb-3 p-3 bg-red-50/90 border border-red-200 rounded-xl text-xs sm:text-sm font-semibold text-red-900 flex items-center justify-between shadow-xs">
-            <div className="flex items-center gap-2">
-              <span>⚠️</span>
-              <span>{error}</span>
+          <div className="flex-shrink-0 min-w-0 mb-3 p-3 bg-red-50/90 border border-red-200 rounded-xl text-xs sm:text-sm font-semibold text-red-900 flex items-center justify-between shadow-xs">
+            <div className="flex items-center gap-2 min-w-0 truncate">
+              <span className="flex-shrink-0">⚠️</span>
+              <span className="truncate">{error}</span>
             </div>
             <button
               onClick={() => setError('')}
-              className="text-red-700 hover:text-red-900 font-bold text-sm cursor-pointer ml-2"
+              className="text-red-700 hover:text-red-900 font-bold text-sm cursor-pointer ml-2 flex-shrink-0"
             >
               ✕
             </button>
           </div>
         )}
 
-        {/* 1. Summarizer Studio View */}
+        {/* 1. Summarizer Studio View: flex-1 min-h-0 min-w-0 overflow-hidden */}
+        {/* min-w-0 prevents workspace container from forcing horizontal expansion */}
         {currentView === 'workspace' && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 items-stretch">
-              <InputSection
-                text={text}
-                setText={setText}
-                method={method}
-                setMethod={setMethod}
-                numSentences={numSentences}
-                setNumSentences={setNumSentences}
-                weightFreq={weightFreq}
-                setWeightFreq={setWeightFreq}
-                weightTfidf={weightTfidf}
-                setWeightTfidf={setWeightTfidf}
-                onSummarize={handleSummarize}
-                loading={loading}
-              />
+          <div className="flex-1 w-full min-h-0 min-w-0 flex flex-col overflow-hidden">
+            <SummarizePage
+              text={text}
+              setText={setText}
+              method={method}
+              setMethod={setMethod}
+              numSentences={numSentences}
+              setNumSentences={setNumSentences}
+              frequencyWeight={frequencyWeight}
+              setFrequencyWeight={setFrequencyWeight}
+              onSummarize={handleSummarize}
+              loading={loading}
+              error={error}
+              summaryData={summaryData}
+              onClear={() => {
+                setText('');
+                setSummaryData(null);
+                setError('');
+              }}
+            />
 
-              <OutputSection
-                summary={summaryData?.summary || ''}
-                method={summaryData?.method || method}
-                compressionRatio={summaryData?.compression_ratio || 0}
-                isExtractiveVerified={summaryData?.is_extractive_verified ?? true}
-                loading={loading}
-              />
-            </div>
-
-            {/* If summary generated, show Quick Stats and direct jump cards */}
+            {/* Mobile-only additional metrics (<1024px) allowing vertical page scrolling on small viewports */}
             {summaryData && (
-              <div className="space-y-4 animate-fade-up">
+              <div className="lg:hidden space-y-4 animate-fade-up mt-4 pb-24">
                 <StatsGrid stats={summaryData} />
 
                 {/* Quick Navigation Cards */}
@@ -233,82 +244,72 @@ export default function App() {
 
         {/* 2. NLP Analysis View */}
         {currentView === 'nlp_analysis' && (
-          <div className="space-y-5">
-            {summaryData ? (
-              <NLPAnalysis
-                summaryData={summaryData}
-                originalText={text}
-              />
-            ) : (
-              renderEmptyState(
-                'No NLP Analysis Data Yet',
-                'Create a summary first to inspect tokenization, stop-word removal, and lemmatization.'
-              )
-            )}
+          <div className="w-full">
+            <NLPAnalysis
+              summaryData={summaryData}
+              originalText={text}
+              loading={loading}
+              error={error}
+              onGoToSummarizer={() => setCurrentView('workspace')}
+              onRetry={handleSummarize}
+            />
           </div>
         )}
 
         {/* 3. Sentence Ranking View */}
         {currentView === 'ranking' && (
-          <div className="space-y-5">
-            {summaryData?.sentences && summaryData.sentences.length > 0 ? (
-              <SentenceTable sentences={summaryData.sentences} />
-            ) : (
-              renderEmptyState(
-                'No Sentence Scores Yet',
-                'Create a summary first to see how each sentence is ranked.'
-              )
-            )}
+          <div className="w-full">
+            <SentenceScoresPage
+              sentences={summaryData?.sentences}
+              onGoToSummarizer={() => setCurrentView('workspace')}
+            />
           </div>
         )}
 
         {/* 4. Stats & Charts Analytics View */}
         {currentView === 'analytics' && (
-          <div className="space-y-5">
-            {summaryData ? (
-              <>
-                <StatsGrid stats={summaryData} />
-                {summaryData?.sentences && summaryData.sentences.length > 0 ? (
-                  <ScoreChart
-                    sentences={summaryData.sentences}
-                    wordFrequencies={summaryData.word_frequencies}
-                    stats={summaryData}
-                    originalText={text}
-                  />
-                ) : (
-                  <div className="bg-white p-6 rounded-2xl border border-slate-300 text-center text-xs sm:text-sm font-bold text-slate-800">
-                    No sentence details available for this summary.
-                  </div>
-                )}
-              </>
-            ) : (
-              renderEmptyState(
-                'No Summary Data Yet',
-                'Create a summary first to see charts and numbers.'
-              )
-            )}
+          <div className="w-full">
+            <StatsChartsPage
+              summaryData={summaryData}
+              originalText={text}
+              onGoToSummarizer={() => setCurrentView('workspace')}
+            />
           </div>
         )}
 
         {/* 5. Algorithm Comparison View */}
         {currentView === 'compare' && (
-          <div className="space-y-5">
-            <ComparisonSection
+          <div className="w-full">
+            <CompareMethodsPage
+              sourceText={text}
               compareData={compareData}
               loading={compareLoading}
               onRunCompare={handleRunCompare}
               referenceSummary={referenceSummary}
               setReferenceSummary={setReferenceSummary}
+              onGoToSummarizer={() => setCurrentView('workspace')}
             />
           </div>
         )}
 
         {/* 6. History Database View */}
         {currentView === 'history' && (
-          <HistoryPage
-            onSelectRecord={handleSelectHistoryRecord}
-            onBackToWorkspace={() => setCurrentView('workspace')}
-          />
+          <div className="w-full">
+            <HistoryPage
+              onSelectRecord={handleSelectHistoryRecord}
+              onBackToWorkspace={() => setCurrentView('workspace')}
+            />
+          </div>
+        )}
+
+        {/* 7. Accuracy Check View */}
+        {currentView === 'accuracy' && (
+          <div className="w-full">
+            <AccuracyCheckPage
+              candidateSummary={summaryData?.summary || ''}
+              onGoToSummarizer={() => setCurrentView('workspace')}
+            />
+          </div>
         )}
       </main>
 
@@ -319,11 +320,9 @@ export default function App() {
         candidateSummary={summaryData?.summary || ''}
       />
 
-      {/* Footer */}
-      <footer className="border-t border-slate-300 bg-white py-2.5 pb-24 lg:pb-2.5 text-center text-[11px] sm:text-xs text-slate-800 font-bold shadow-2xs">
-        <p>
-          <span className="font-extrabold text-blue-950">SummaSphere</span> &bull; Intelligent Extractive Text Summarization System
-        </p>
+      {/* Footer: flex-shrink-0 compact status bar */}
+      <footer className="flex-shrink-0 border-t border-slate-200/80 bg-white py-1.5 px-4 sm:px-6 text-center lg:text-left text-[11px] text-slate-400 font-medium pb-20 lg:pb-1.5">
+        <p>SummaSphere v1.0.0 · Intelligent Extractive Text Summarization System</p>
       </footer>
 
       {/* Floating Sticky Bottom Navigation Bar */}
