@@ -256,7 +256,7 @@ export default function App() {
 
         {/* 2. NLP Analysis View */}
         {currentView === 'nlp_analysis' && (
-          <div className="w-full min-w-0 p-3 sm:p-4 lg:p-6 pb-24 sm:pb-8 lg:pb-6 overflow-y-auto">
+          <div className="w-full min-w-0 flex-1 flex flex-col overflow-y-auto">
             <NLPAnalysis
               summaryData={summaryData}
               originalText={text}
@@ -270,7 +270,7 @@ export default function App() {
 
         {/* 3. Sentence Ranking View */}
         {currentView === 'ranking' && (
-          <div className="w-full min-w-0 p-3 sm:p-4 lg:p-6 pb-24 sm:pb-8 lg:pb-6 overflow-y-auto">
+          <div className="w-full min-w-0 flex-1 flex flex-col overflow-y-auto">
             <SentenceScoresPage
               sentences={summaryData?.sentences}
               onGoToSummarizer={() => setCurrentView('workspace')}
@@ -291,7 +291,7 @@ export default function App() {
 
         {/* 5. Algorithm Comparison View */}
         {currentView === 'compare' && (
-          <div className="w-full min-w-0 p-3 sm:p-4 lg:p-6 pb-24 sm:pb-8 lg:pb-6 overflow-y-auto">
+          <div className="w-full min-w-0 flex-1 flex flex-col overflow-y-auto">
             <CompareMethodsPage
               sourceText={text}
               compareData={compareData}

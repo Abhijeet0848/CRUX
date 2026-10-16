@@ -73,6 +73,7 @@ export default function BottomNavBar({
       {navItems.map((item) => {
         const Icon = item.icon;
         const isActive = currentView === item.id;
+        const isScores = item.id === 'ranking';
 
         return (
           <button
@@ -85,14 +86,20 @@ export default function BottomNavBar({
             /* Each nav item: flex flex-col items-center justify-center gap-1 text-xs */
             className={`flex flex-col items-center justify-center gap-1 text-xs flex-1 py-1 px-1 transition-colors duration-150 cursor-pointer select-none active:scale-95 ${
               isActive
-                ? 'text-indigo-600 font-bold'
+                ? isScores
+                  ? 'text-purple-600 font-bold'
+                  : 'text-indigo-600 font-bold'
                 : 'text-slate-600 hover:text-slate-900 font-medium'
             }`}
           >
             <div className="relative flex items-center justify-center">
               <Icon
                 className={`w-5 h-5 transition-transform ${
-                  isActive ? 'scale-110 text-indigo-600 stroke-[2.4]' : 'text-slate-500 stroke-[1.8]'
+                  isActive
+                    ? isScores
+                      ? 'scale-110 text-purple-600 stroke-[2.4]'
+                      : 'scale-110 text-indigo-600 stroke-[2.4]'
+                    : 'text-slate-500 stroke-[1.8]'
                 }`}
               />
 
@@ -107,7 +114,11 @@ export default function BottomNavBar({
 
             <span
               className={`text-[10px] sm:text-xs leading-none tracking-tight ${
-                isActive ? 'text-indigo-700 font-bold' : 'text-slate-600 font-medium'
+                isActive
+                  ? isScores
+                    ? 'text-purple-700 font-bold'
+                    : 'text-indigo-700 font-bold'
+                  : 'text-slate-600 font-medium'
               }`}
             >
               {item.label}

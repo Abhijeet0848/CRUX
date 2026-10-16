@@ -9,21 +9,32 @@ import {
   History,
   Target,
   ChevronDown,
+  ChevronLeft,
 } from 'lucide-react';
 import logoImg from '../assets/logo.png';
+
+const PAGE_TITLES = {
+  workspace: 'SummaSphere',
+  nlp_analysis: 'NLP Analysis',
+  ranking: 'Sentence Scores',
+  analytics: 'Stats & Charts',
+  compare: 'Compare Methods',
+  history: 'History',
+  accuracy: 'Accuracy Check',
+};
 
 /**
  * NavBar (Header)
  *
  * Responsive header implementation adhering to mobile-first breakpoint rules:
  * - Mobile (< 640px):
+ *   - On workspace: Logo + "SummaSphere" title + icon-only Accuracy Check
+ *   - On sub-pages (e.g. NLP Analysis): Back chevron arrow on left, centered page title,
+ *     and icon button on right for a balanced, native app feel.
  *   - Height: h-14, Padding: px-3
- *   - Show only logo + "SummaSphere" title (min-w-0 truncate)
- *   - Desktop tab bar hidden (navigation provided by BottomNav)
- *   - "Accuracy Check" rendered as compact icon-only button on the right
  * - Tablet (640px - 1023px):
  *   - Height: sm:h-16, Padding: sm:px-4
- *   - Top navigation visible with primary tab + "More" dropdown
+ *   - Logo + title on left, primary tab + "More" dropdown in center
  *   - "Accuracy Check" shows both icon and text label
  * - Desktop (>= 1024px):
  *   - Height: lg:h-16, Padding: lg:px-6
@@ -32,6 +43,9 @@ import logoImg from '../assets/logo.png';
 export default function NavBar({ currentView, setView, onOpenRouge, hasSummary }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+
+  const isSubPage = currentView !== 'workspace';
+  const pageTitle = PAGE_TITLES[currentView] || 'SummaSphere';
 
   const mainItem = {
     id: 'workspace',
@@ -68,7 +82,7 @@ export default function NavBar({ currentView, setView, onOpenRouge, hasSummary }
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs flex-shrink-0 w-full max-w-full">
       {/* 
-        Header Inner Container:
+        Header Inner Padding:
         - Mobile (< 640px): px-3
         - Tablet (640-1023px): sm:px-4
         - Desktop (>= 1024px): lg:px-6
@@ -80,9 +94,57 @@ export default function NavBar({ currentView, setView, onOpenRouge, hasSummary }
           - Desktop & Tablet (>= 640px): sm:h-16
         */}
         <div className="h-14 sm:h-16 flex items-center justify-between gap-2 sm:gap-4 min-w-0">
-          {/* Brand Left: Logo + "SummaSphere" title */}
+          {/* ========================================================= */}
+          {/* Mobile Sub-page Variant (< 640px): Back arrow + Centered Title */}
+          {/* ========================================================= */}
+          {isSubPage ? (
+            <div className="flex sm:hidden items-center justify-between w-full min-w-0">
+              {/* Back button */}
+              <button
+                type="button"
+                onClick={() => handleSelectNav('workspace')}
+                className="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 hover:text-slate-900 -ml-1 p-1.5 rounded-lg active:bg-slate-100 cursor-pointer transition-colors shrink-0"
+                aria-label="Back to Summarize"
+              >
+                <ChevronLeft className="w-5 h-5 text-slate-700 shrink-0" />
+                <span>Back</span>
+              </button>
+
+              {/* Centered Page Title */}
+              <div className="flex-1 text-center min-w-0 px-2">
+                <h1 className="text-sm font-bold text-slate-900 truncate tracking-tight m-0">
+                  {pageTitle}
+                </h1>
+              </div>
+
+              {/* Right Action: Accuracy Check icon button */}
+              <button
+                type="button"
+                onClick={() => {
+                  if (onOpenRouge) onOpenRouge();
+                  else setView('accuracy');
+                }}
+                title="Accuracy Check (ROUGE Evaluation)"
+                aria-label="Accuracy Check"
+                className={`inline-flex items-center justify-center p-2 text-xs font-semibold rounded-xl transition-all cursor-pointer shadow-xs active:scale-95 shrink-0 ${
+                  currentView === 'accuracy'
+                    ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-xs font-bold'
+                    : 'text-slate-800 hover:text-indigo-900 bg-white hover:bg-slate-50 border border-slate-200'
+                }`}
+              >
+                <Target className={`w-4 h-4 shrink-0 ${currentView === 'accuracy' ? 'text-white' : 'text-indigo-600'}`} />
+              </button>
+            </div>
+          ) : null}
+
+          {/* ========================================================= */}
+          {/* Standard Left Brand: Logo + SummaSphere                     */}
+          {/* Hidden on mobile sub-pages, visible on mobile workspace and on tablet/desktop */}
+          {/* ========================================================= */}
           <div
-            className="flex items-center gap-2 sm:gap-2.5 cursor-pointer select-none min-w-0 shrink group focus-visible:ring-2 focus-visible:ring-indigo-500 rounded-xl focus:outline-none"
+            className={`${
+              isSubPage ? 'hidden sm:flex' : 'flex'
+            } items-center gap-2 sm:gap-2.5 cursor-pointer select-none min-w-0 shrink group focus-visible:ring-2 focus-visible:ring-indigo-500 rounded-xl focus:outline-none`}
             onClick={() => handleSelectNav('workspace')}
             role="button"
             tabIndex={0}
@@ -96,7 +158,6 @@ export default function NavBar({ currentView, setView, onOpenRouge, hasSummary }
                 className="w-full h-full object-contain rounded-lg"
               />
             </div>
-            {/* Title with min-w-0 and truncate to prevent header overflow */}
             <h1 className="flex items-center m-0 p-0 text-base sm:text-lg lg:text-xl font-bold tracking-tight min-w-0 truncate">
               <span className="bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-600 bg-clip-text text-transparent truncate">
                 SummaSphere
@@ -107,14 +168,13 @@ export default function NavBar({ currentView, setView, onOpenRouge, hasSummary }
           {/* 
             Desktop Navigation Bar:
             - Mobile (< 640px): hidden
-            - Tablet (640-1023px): hidden (uses collapsed tablet dropdown)
+            - Tablet (640-1023px): hidden
             - Desktop (>= 1024px): hidden lg:flex
           */}
           <nav
             aria-label="Main Navigation"
             className="hidden lg:flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80 gap-1 shrink-0"
           >
-            {/* Primary Tab: Summarize */}
             <button
               type="button"
               onClick={() => handleSelectNav(mainItem.id)}
@@ -128,7 +188,6 @@ export default function NavBar({ currentView, setView, onOpenRouge, hasSummary }
               <span>{mainItem.label}</span>
             </button>
 
-            {/* Secondary Tabs */}
             {secondaryItems.map((item) => {
               const Icon = item.icon;
               const isActive = currentView === item.id;
@@ -161,12 +220,11 @@ export default function NavBar({ currentView, setView, onOpenRouge, hasSummary }
 
           {/* 
             Tablet Middle Navigation:
-            - Mobile (< 640px): hidden (mobile uses BottomNav)
-            - Tablet (640-1023px): hidden sm:flex lg:hidden (top navigation visible on tablet)
+            - Mobile (< 640px): hidden
+            - Tablet (640-1023px): hidden sm:flex lg:hidden
             - Desktop (>= 1024px): lg:hidden
           */}
           <div className="hidden sm:flex lg:hidden items-center gap-1.5 overflow-x-auto no-scrollbar py-1 shrink-0">
-            {/* Primary Tab: Summarize */}
             <button
               type="button"
               onClick={() => handleSelectNav(mainItem.id)}
@@ -197,7 +255,6 @@ export default function NavBar({ currentView, setView, onOpenRouge, hasSummary }
                 <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
 
-              {/* Dropdown Popover */}
               {isDropdownOpen && (
                 <div
                   role="menu"
@@ -234,19 +291,16 @@ export default function NavBar({ currentView, setView, onOpenRouge, hasSummary }
           </div>
 
           {/* 
-            Right Actions: Accuracy Check Button
-            - Mobile (< 640px): Small icon button (p-2 rounded-xl, text hidden)
-            - Tablet & Desktop (>= 640px): sm:px-3.5 sm:py-2 text-xs sm:text-sm with icon + label
+            Right Actions (Tablet & Desktop, or Mobile Workspace):
+            - Mobile on sub-page: already handled in sub-page header row above
+            - Tablet & Desktop (>= 640px) or Mobile Workspace: rendered here
           */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div className={`${isSubPage ? 'hidden sm:flex' : 'flex'} items-center gap-2 shrink-0`}>
             <button
               type="button"
               onClick={() => {
-                if (onOpenRouge) {
-                  onOpenRouge();
-                } else {
-                  setView('accuracy');
-                }
+                if (onOpenRouge) onOpenRouge();
+                else setView('accuracy');
               }}
               title="Accuracy Check (ROUGE Evaluation)"
               aria-label="Accuracy Check"
@@ -257,7 +311,6 @@ export default function NavBar({ currentView, setView, onOpenRouge, hasSummary }
               }`}
             >
               <Target className={`w-4 h-4 shrink-0 ${currentView === 'accuracy' ? 'text-white' : 'text-indigo-600'}`} />
-              {/* Label hidden on mobile (< 640px), visible on tablet and desktop (>= 640px) */}
               <span className="hidden sm:inline">Accuracy Check</span>
             </button>
           </div>
@@ -274,5 +327,4 @@ NavBar.propTypes = {
   hasSummary: PropTypes.bool,
 };
 
-// Re-export as Header for deliverable compliance
 export { NavBar as Header };

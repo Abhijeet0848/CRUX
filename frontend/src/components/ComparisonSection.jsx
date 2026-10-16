@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import CompareMethodsEmptyState from './CompareMethodsEmptyState';
 import {
   BarChart,
   Bar,
@@ -54,8 +55,12 @@ export default function ComparisonSection({
 
   // Pre-comparison State (Card with inline warning, preview grid, and action buttons)
   if (!compareData && !loading) {
+    if (!hasSource) {
+      return <CompareMethodsEmptyState onGoToSummarizer={onGoToSummarizer} />;
+    }
+
     return (
-      <div className="min-h-[calc(100vh-200px)] flex items-center justify-center px-6">
+      <div className="min-h-[calc(100vh-200px)] flex items-center justify-center px-4 sm:px-6">
         <div
           role="region"
           aria-label="Algorithm Comparison Setup"
