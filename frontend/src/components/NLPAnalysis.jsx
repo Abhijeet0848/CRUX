@@ -42,7 +42,7 @@ export default function NLPAnalysis({
   // 1. Loading State (Requirement 7)
   if (loading) {
     return (
-      <div className="min-h-[calc(100vh-200px)] flex items-center justify-center p-4">
+      <div className="flex-1 min-h-0 flex items-center justify-center p-4">
         <div className="bg-white border border-slate-200 rounded-2xl px-10 py-12 text-center shadow-sm max-w-2xl w-full mx-auto space-y-6">
           <div className="flex flex-col items-center justify-center gap-3">
             <Loader2 className="w-7 h-7 text-indigo-500 animate-spin" />
@@ -61,7 +61,7 @@ export default function NLPAnalysis({
   // 2. Error State (Requirement 8)
   if (error) {
     return (
-      <div className="min-h-[calc(100vh-200px)] flex items-center justify-center p-4">
+      <div className="flex-1 min-h-0 flex items-center justify-center p-4">
         <div className="bg-red-50 border border-red-200 rounded-2xl px-10 py-12 text-center shadow-sm max-w-2xl w-full mx-auto space-y-5">
           <div className="w-16 h-16 rounded-2xl bg-red-100 border border-red-200 flex items-center justify-center mx-auto text-red-600 shadow-xs">
             <AlertCircle className="w-8 h-8 text-red-600" />

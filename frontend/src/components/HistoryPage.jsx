@@ -128,7 +128,8 @@ export default function HistoryPage({ onSelectRecord, onBackToWorkspace }) {
   }
 
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm my-3 sm:my-5 animate-in fade-in duration-150">
+    <div className="p-3 sm:p-4 lg:p-6 pb-24 sm:pb-8 lg:pb-6 max-w-6xl mx-auto w-full animate-in fade-in duration-150">
+      <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm">
       {/* 1. Header Row with History Lucide icon (32px, text-purple-600 in bg-purple-50 container) */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-200">
         <div className="flex items-center gap-4">
@@ -302,6 +303,7 @@ export default function HistoryPage({ onSelectRecord, onBackToWorkspace }) {
         )}
       </div>
     </div>
+  </div>
   );
 }
 

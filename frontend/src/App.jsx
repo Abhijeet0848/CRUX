@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart3, Zap } from 'lucide-react';
-import NavBar from './components/NavBar';
+import AppShell from './components/AppShell';
 import SummarizePage from './components/SummarizePage';
 import StatsGrid from './components/StatsGrid';
 import NLPAnalysis from './components/NLPAnalysis';
@@ -10,7 +10,6 @@ import CompareMethodsPage from './components/CompareMethodsPage';
 import HistoryPage from './components/HistoryPage';
 import AccuracyCheckPage from './components/AccuracyCheckPage';
 import RougeModal from './components/RougeModal';
-import BottomNavBar from './components/BottomNavBar';
 import { summarizeText, compareAlgorithms } from './services/api';
 
 /**
@@ -132,47 +131,33 @@ export default function App() {
   };
 
   return (
-    /* 
-      Root Container:
-      - Mobile (< 640px) & Tablet (640-1023px): w-full max-w-full min-h-screen flex flex-col (allows natural vertical page scroll)
-      - Desktop (>= 1024px): lg:h-screen lg:overflow-hidden (viewport-locked layout)
-    */
-    <div className="w-full max-w-full min-h-screen lg:h-screen lg:overflow-hidden flex flex-col bg-gradient-to-b from-slate-100 via-slate-50 to-slate-100/90 text-slate-900 font-sans">
-      {/* Top Header: flex-shrink-0 (sticky at top) */}
-      <NavBar
-        currentView={currentView}
-        setView={setCurrentView}
-        onOpenRouge={() => setIsRougeOpen(true)}
-        hasSummary={!!summaryData}
-      />
-
-      {/* 
-        Main View Container:
-        - Mobile (< 640px): flex-1 w-full max-w-full min-w-0 overflow-x-hidden (natural page scroll)
-        - Desktop (>= 1024px): lg:overflow-hidden lg:flex-1 lg:min-h-0
-      */}
-      <main className="flex-1 w-full max-w-full min-h-0 min-w-0 flex flex-col overflow-x-hidden lg:overflow-hidden">
-        {/* Error Alert */}
-        {error && (
-          <div className="flex-shrink-0 min-w-0 mx-3 sm:mx-6 my-2 p-3 bg-red-50/90 border border-red-200 rounded-xl text-xs sm:text-sm font-semibold text-red-900 flex items-center justify-between shadow-xs">
-            <div className="flex items-center gap-2 min-w-0 truncate">
-              <span className="flex-shrink-0">⚠️</span>
-              <span className="truncate">{error}</span>
-            </div>
-            <button
-              onClick={() => setError('')}
-              className="text-red-700 hover:text-red-900 font-bold text-sm cursor-pointer ml-2 flex-shrink-0"
-              aria-label="Dismiss error"
-            >
-              ✕
-            </button>
+    <AppShell
+      currentView={currentView}
+      setView={setCurrentView}
+      onOpenRouge={() => setIsRougeOpen(true)}
+      hasSummary={!!summaryData}
+    >
+      {/* Error Alert */}
+      {error && (
+        <div className="flex-shrink-0 min-w-0 mx-3 sm:mx-6 my-2 p-3 bg-red-50/90 border border-red-200 rounded-xl text-xs sm:text-sm font-semibold text-red-900 flex items-center justify-between shadow-xs">
+          <div className="flex items-center gap-2 min-w-0 truncate">
+            <span className="flex-shrink-0">⚠️</span>
+            <span className="truncate">{error}</span>
           </div>
-        )}
+          <button
+            onClick={() => setError('')}
+            className="text-red-700 hover:text-red-900 font-bold text-sm cursor-pointer ml-2 flex-shrink-0"
+            aria-label="Dismiss error"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
-        {/* 1. Summarizer Studio View */}
-        {currentView === 'workspace' && (
-          <div className="flex-1 w-full min-h-0 min-w-0 flex flex-col lg:overflow-hidden">
-            <SummarizePage
+      {/* 1. Summarizer Studio View */}
+      {currentView === 'workspace' && (
+        <div className="flex-1 w-full min-h-0 min-w-0 flex flex-col lg:overflow-hidden overflow-y-auto">
+          <SummarizePage
               text={text}
               setText={setText}
               method={method}
@@ -246,76 +231,75 @@ export default function App() {
           </div>
         )}
 
-        {/* 2. NLP Analysis View */}
-        {currentView === 'nlp_analysis' && (
-          <div className="w-full min-w-0 flex-1 flex flex-col overflow-y-auto">
-            <NLPAnalysis
-              summaryData={summaryData}
-              originalText={text}
-              loading={loading}
-              error={error}
-              onGoToSummarizer={() => setCurrentView('workspace')}
-              onRetry={handleSummarize}
-            />
-          </div>
-        )}
+      {/* 2. NLP Analysis View */}
+      {currentView === 'nlp_analysis' && (
+        <div className="w-full min-w-0 flex-1 min-h-0 flex flex-col overflow-y-auto">
+          <NLPAnalysis
+            summaryData={summaryData}
+            originalText={text}
+            loading={loading}
+            error={error}
+            onGoToSummarizer={() => setCurrentView('workspace')}
+            onRetry={handleSummarize}
+          />
+        </div>
+      )}
 
-        {/* 3. Sentence Ranking View */}
-        {currentView === 'ranking' && (
-          <div className="w-full min-w-0 flex-1 flex flex-col overflow-y-auto">
-            <SentenceScoresPage
-              sentences={summaryData?.sentences}
-              onGoToSummarizer={() => setCurrentView('workspace')}
-            />
-          </div>
-        )}
+      {/* 3. Sentence Ranking View */}
+      {currentView === 'ranking' && (
+        <div className="w-full min-w-0 flex-1 min-h-0 flex flex-col overflow-y-auto">
+          <SentenceScoresPage
+            sentences={summaryData?.sentences}
+            onGoToSummarizer={() => setCurrentView('workspace')}
+          />
+        </div>
+      )}
 
-        {/* 4. Stats & Charts Analytics View */}
-        {currentView === 'analytics' && (
-          <div className="w-full min-w-0 p-3 sm:p-4 lg:p-6 pb-24 sm:pb-8 lg:pb-6 overflow-y-auto">
-            <StatsChartsPage
-              summaryData={summaryData}
-              originalText={text}
-              onGoToSummarizer={() => setCurrentView('workspace')}
-            />
-          </div>
-        )}
+      {/* 4. Stats & Charts Analytics View */}
+      {currentView === 'analytics' && (
+        <div className="w-full min-w-0 flex-1 min-h-0 flex flex-col overflow-y-auto">
+          <StatsChartsPage
+            summaryData={summaryData}
+            originalText={text}
+            onGoToSummarizer={() => setCurrentView('workspace')}
+          />
+        </div>
+      )}
 
-        {/* 5. Algorithm Comparison View */}
-        {currentView === 'compare' && (
-          <div className="w-full min-w-0 flex-1 flex flex-col overflow-y-auto">
-            <CompareMethodsPage
-              sourceText={text}
-              compareData={compareData}
-              loading={compareLoading}
-              onRunCompare={handleRunCompare}
-              referenceSummary={referenceSummary}
-              setReferenceSummary={setReferenceSummary}
-              onGoToSummarizer={() => setCurrentView('workspace')}
-            />
-          </div>
-        )}
+      {/* 5. Algorithm Comparison View */}
+      {currentView === 'compare' && (
+        <div className="w-full min-w-0 flex-1 min-h-0 flex flex-col overflow-y-auto">
+          <CompareMethodsPage
+            sourceText={text}
+            compareData={compareData}
+            loading={compareLoading}
+            onRunCompare={handleRunCompare}
+            referenceSummary={referenceSummary}
+            setReferenceSummary={setReferenceSummary}
+            onGoToSummarizer={() => setCurrentView('workspace')}
+          />
+        </div>
+      )}
 
-        {/* 6. History Database View */}
-        {currentView === 'history' && (
-          <div className="w-full min-w-0 p-3 sm:p-4 lg:p-6 pb-24 sm:pb-8 lg:pb-6 overflow-y-auto">
-            <HistoryPage
-              onSelectRecord={handleSelectHistoryRecord}
-              onBackToWorkspace={() => setCurrentView('workspace')}
-            />
-          </div>
-        )}
+      {/* 6. History Database View */}
+      {currentView === 'history' && (
+        <div className="w-full min-w-0 flex-1 min-h-0 flex flex-col overflow-y-auto">
+          <HistoryPage
+            onSelectRecord={handleSelectHistoryRecord}
+            onBackToWorkspace={() => setCurrentView('workspace')}
+          />
+        </div>
+      )}
 
-        {/* 7. Accuracy Check View */}
-        {currentView === 'accuracy' && (
-          <div className="w-full min-w-0 p-3 sm:p-4 lg:p-6 pb-24 sm:pb-8 lg:pb-6 overflow-y-auto">
-            <AccuracyCheckPage
-              candidateSummary={summaryData?.summary || ''}
-              onGoToSummarizer={() => setCurrentView('workspace')}
-            />
-          </div>
-        )}
-      </main>
+      {/* 7. Accuracy Check View */}
+      {currentView === 'accuracy' && (
+        <div className="w-full min-w-0 flex-1 min-h-0 flex flex-col overflow-y-auto">
+          <AccuracyCheckPage
+            candidateSummary={summaryData?.summary || ''}
+            onGoToSummarizer={() => setCurrentView('workspace')}
+          />
+        </div>
+      )}
 
       {/* ROUGE Modal */}
       <RougeModal
@@ -323,19 +307,6 @@ export default function App() {
         onClose={() => setIsRougeOpen(false)}
         candidateSummary={summaryData?.summary || ''}
       />
-
-      {/* Footer: Compact status bar with clearance on mobile */}
-      <footer className="flex-shrink-0 border-t border-slate-200/80 bg-white py-2 px-4 sm:px-6 text-center lg:text-left text-[11px] text-slate-400 font-medium pb-20 sm:pb-2 lg:pb-2">
-        <p>SummaSphere v1.0.0 · Intelligent Extractive Text Summarization System</p>
-      </footer>
-
-      {/* Floating Sticky Bottom Navigation Bar (Visible only on mobile < 640px) */}
-      <BottomNavBar
-        currentView={currentView}
-        setView={setCurrentView}
-        onOpenRouge={() => setIsRougeOpen(true)}
-        hasSummary={!!summaryData}
-      />
-    </div>
+    </AppShell>
   );
 }

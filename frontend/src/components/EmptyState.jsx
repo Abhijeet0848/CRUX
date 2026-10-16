@@ -80,6 +80,7 @@ export default function EmptyState({
   description,
   preview,
   features,
+  columns,
   ctaLabel,
   ctaAction,
   onPrimary,
@@ -95,6 +96,7 @@ export default function EmptyState({
   const theme = ACCENT[chosenAccent] || ACCENT.indigo;
   const handlePrimary = ctaAction || onPrimary;
   const buttonText = ctaLabel || 'Run a Summary';
+  const featureCols = columns || (features?.length >= 4 || (Array.isArray(preview) && preview.length >= 4) ? 2 : 1);
 
   // Banner dismissal state with optional localStorage persistence
   const bannerDismissKey = banner?.dismissKey;
@@ -140,7 +142,7 @@ export default function EmptyState({
       - Mobile (< 640px): w-full min-h-screen flex flex-col bg-gray-50
       - Tablet & Desktop (>= 640px): bg-gray-50
     */
-    <div className="w-full min-h-screen flex flex-col bg-gray-50 text-gray-900 font-sans">
+    <div className="w-full flex-1 min-h-0 flex flex-col items-center justify-center p-3 sm:p-5 lg:p-6 text-gray-900 font-sans overflow-y-auto">
       {/* 
         Optional Sub-Page Header Variant:
         Shows back chevron on the left, centered page title, and right icon button
@@ -188,7 +190,7 @@ export default function EmptyState({
         - Tablet (640px - 1023px): sm:px-6 sm:pt-6
         - Desktop (>= 1024px): lg:pt-8
       */}
-      <main className="flex-1 px-4 pt-4 pb-24 sm:px-6 sm:pt-6 lg:pt-8 max-w-2xl mx-auto w-full flex flex-col">
+      <div className="w-full max-w-2xl my-auto flex flex-col items-center">
         {/* 
           2. Restructured Warning Banner (rendered above card, dismissible, tight against text):
         */}
@@ -238,25 +240,25 @@ export default function EmptyState({
         <div
           role="region"
           aria-label={title}
-          className="w-full bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8 text-center transition-all"
+          className="w-full bg-white rounded-2xl shadow-sm border border-slate-200/90 p-4 sm:p-6 text-center transition-all"
         >
-          {/* Central Icon Badge: w-14 h-14 on mobile, w-16 h-16 on sm+ */}
+          {/* Central Icon Badge: w-12 h-12 on mobile, w-14 h-14 on sm+ */}
           {Icon && (
             <div
-              className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl ${theme.bg} border ${theme.border} flex items-center justify-center mx-auto mb-4 shadow-2xs`}
+              className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl ${theme.bg} border ${theme.border} flex items-center justify-center mx-auto mb-3 shadow-2xs`}
             >
-              <Icon className={`w-7 h-7 sm:w-8 sm:h-8 ${theme.text}`} />
+              <Icon className={`w-6 h-6 sm:w-7 sm:h-7 ${theme.text}`} />
             </div>
           )}
 
-          {/* Title: text-lg on mobile, sm:text-xl */}
-          <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 tracking-tight">
+          {/* Title: text-base on mobile, sm:text-lg */}
+          <h2 className="text-base sm:text-lg font-bold text-gray-900 mb-1 tracking-tight">
             {title}
           </h2>
 
-          {/* Description: text-sm on mobile, sm:text-base with relaxed leading */}
+          {/* Description: text-xs on mobile, sm:text-sm */}
           {description && (
-            <p className="text-sm sm:text-base text-gray-500 leading-relaxed max-w-md mx-auto">
+            <p className="text-xs sm:text-sm text-gray-500 leading-relaxed max-w-md mx-auto">
               {description}
             </p>
           )}
@@ -272,33 +274,32 @@ export default function EmptyState({
 
           {/* 
             4. Feature List Cards:
-            - flex flex-col gap-3 mt-6 w-full
-            - Each card: w-full flex items-start gap-3 p-4 bg-white rounded-xl shadow-sm border border-gray-100
+            - 1 column or 2x2 grid when 4 items
           */}
           {resolvedFeatures.length > 0 && (
-            <div className="flex flex-col gap-3 mt-6 w-full">
+            <div className={featureCols === 2 ? "grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 my-4 sm:my-5 w-full" : "flex flex-col gap-2.5 sm:gap-3 my-4 sm:my-5 w-full"}>
               {resolvedFeatures.map((item, idx) => {
                 const ItemIcon = item.icon;
                 return (
                   <div
                     key={item.id || idx}
-                    className="w-full flex items-start gap-3 p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-gray-200 transition-colors text-left"
+                    className="w-full flex items-start gap-2.5 sm:gap-3 p-2.5 sm:p-3 bg-slate-50 border border-slate-100 hover:border-slate-200 rounded-xl transition-colors text-left"
                   >
                     {ItemIcon && (
                       <div
-                        className={`flex-shrink-0 w-9 h-9 rounded-lg ${theme.bg} border ${theme.border} flex items-center justify-center ${theme.text}`}
+                        className={`flex-shrink-0 w-8 h-8 rounded-lg ${theme.bg} border ${theme.border} flex items-center justify-center ${theme.text}`}
                       >
-                        <ItemIcon className="w-5 h-5" />
+                        <ItemIcon className="w-4 h-4" size={16} />
                       </div>
                     )}
                     <div className="min-w-0 flex-1 text-left">
-                      <h3 className="text-sm sm:text-base font-medium text-gray-900 leading-snug">
+                      <div className="text-xs sm:text-sm font-semibold text-slate-800 leading-tight">
                         {item.title}
-                      </h3>
+                      </div>
                       {item.subtitle && (
-                        <p className="text-xs sm:text-sm text-gray-500 mt-0.5 leading-relaxed">
+                        <div className="text-[11px] sm:text-xs text-slate-500 mt-0.5 leading-snug">
                           {item.subtitle}
-                        </p>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -309,7 +310,7 @@ export default function EmptyState({
 
           {/* 
             5. Call-to-Action:
-            - Primary button: w-full sm:w-auto mt-6 px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium (text-only)
+            - Primary button
             - Secondary text link
           */}
           <div className="flex flex-col items-center justify-center">
@@ -317,7 +318,7 @@ export default function EmptyState({
               <button
                 type="button"
                 onClick={handlePrimary}
-                className="w-full sm:w-auto mt-6 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium shadow-sm hover:shadow-md active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center mx-auto block focus-visible:ring-2 focus-visible:ring-indigo-500 focus:outline-none"
+                className="w-full sm:w-auto mt-4 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-xs hover:shadow-md active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center mx-auto block focus-visible:ring-2 focus-visible:ring-indigo-500 focus:outline-none"
               >
                 <span>{buttonText}</span>
               </button>
@@ -327,7 +328,7 @@ export default function EmptyState({
               <button
                 type="button"
                 onClick={onSecondary || handlePrimary}
-                className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-indigo-600 hover:text-indigo-800 font-semibold mt-3.5 transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-xs text-indigo-600 hover:text-indigo-800 font-semibold mt-2.5 transition-colors cursor-pointer"
               >
                 <span>{secondaryLabel}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -335,7 +336,7 @@ export default function EmptyState({
             )}
           </div>
         </div>
-      </main>
+      </div>
 
       {/* 
         Optional Bottom Navigation Bar:
@@ -367,6 +368,7 @@ EmptyState.propTypes = {
       subtitle: PropTypes.string,
     })
   ),
+  columns: PropTypes.number,
   ctaLabel: PropTypes.string,
   ctaAction: PropTypes.func,
   onPrimary: PropTypes.func,

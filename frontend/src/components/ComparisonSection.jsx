@@ -56,7 +56,7 @@ export default function ComparisonSection({
     }
 
     return (
-      <div className="min-h-[calc(100vh-200px)] flex items-center justify-center px-4 sm:px-6">
+      <div className="flex-1 min-h-0 flex items-center justify-center p-4 sm:p-6">
         <div
           role="region"
           aria-label="Algorithm Comparison Setup"
@@ -174,7 +174,7 @@ export default function ComparisonSection({
   // Loading State
   if (loading) {
     return (
-      <div className="min-h-[calc(100vh-200px)] flex items-center justify-center px-6">
+      <div className="flex-1 min-h-0 flex items-center justify-center p-6">
         <div className="max-w-md w-full bg-white rounded-2xl border border-slate-200 shadow-sm p-8 text-center space-y-4">
           <div className="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto shadow-xs">
             <RefreshCw size={28} className="animate-spin text-indigo-600" />
