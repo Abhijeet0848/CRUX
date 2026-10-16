@@ -53,8 +53,6 @@ export default function SentenceScoresEmptyState({
       features={features}
       ctaLabel="Run a Summary"
       ctaAction={onGoToSummarizer}
-      secondaryLabel="Go to Summarize"
-      onSecondary={onGoToSummarizer}
       showHeader={showHeader}
       showBottomNav={showBottomNav}
       currentView={currentView}

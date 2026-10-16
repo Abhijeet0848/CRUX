@@ -77,10 +77,8 @@ export default function CompareMethodsEmptyState({
       description="See summaries created by Word Frequency, Key Words (TF-IDF), and Combined (Hybrid) side-by-side."
       features={features}
       columns={2}
-      ctaLabel="Add an Article to Compare"
+      ctaLabel="Run a Summary"
       ctaAction={onGoToSummarizer}
-      secondaryLabel="Go to Summarize"
-      onSecondary={onGoToSummarizer}
       showHeader={showHeader}
       showBottomNav={showBottomNav}
       currentView={currentView}

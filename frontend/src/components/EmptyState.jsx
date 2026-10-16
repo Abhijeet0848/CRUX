@@ -310,25 +310,24 @@ export default function EmptyState({
 
           {/* 
             5. Call-to-Action:
-            - Primary button
-            - Secondary text link
+            - Single primary action with brand gradient
           */}
-          <div className="flex flex-col items-center justify-center">
+          <div className="flex justify-center mt-5 sm:mt-6">
             {handlePrimary && (
               <button
                 type="button"
                 onClick={handlePrimary}
-                className="w-full sm:w-auto mt-4 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-xs hover:shadow-md active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center mx-auto block focus-visible:ring-2 focus-visible:ring-indigo-500 focus:outline-none"
+                className="inline-flex items-center justify-center bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl px-6 py-3 font-medium hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 transition-all cursor-pointer shadow-sm text-sm"
               >
                 <span>{buttonText}</span>
               </button>
             )}
 
-            {(onSecondary || handlePrimary) && (
+            {onSecondary && onSecondary !== handlePrimary && (
               <button
                 type="button"
-                onClick={onSecondary || handlePrimary}
-                className="inline-flex items-center gap-1.5 text-xs text-indigo-600 hover:text-indigo-800 font-semibold mt-2.5 transition-colors cursor-pointer"
+                onClick={onSecondary}
+                className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-indigo-600 hover:text-indigo-800 font-semibold ml-4 transition-colors cursor-pointer"
               >
                 <span>{secondaryLabel}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
