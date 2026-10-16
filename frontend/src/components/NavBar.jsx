@@ -78,7 +78,7 @@ export default function NavBar({ currentView, setView, onOpenRouge, hasSummary }
 
   return (
     <header className="w-full bg-white border-b border-slate-200 sticky top-0 z-40">
-      <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center">
+      <div className="mx-auto px-4 md:px-6 lg:px-8 h-16 flex items-center gap-4 max-w-screen-2xl">
         {/* 1. Brand Container — flex-shrink-0, whitespace-nowrap, mr-4 md:mr-6 */}
         <a
           href="#workspace"
@@ -86,7 +86,7 @@ export default function NavBar({ currentView, setView, onOpenRouge, hasSummary }
             e.preventDefault();
             handleSelectNav('workspace');
           }}
-          className="flex items-center gap-2 flex-shrink-0 mr-4 md:mr-6 cursor-pointer select-none group focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded-xl"
+          className="flex items-center gap-2 flex-shrink-0 mr-2 md:mr-4 lg:mr-6 cursor-pointer select-none group focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded-xl"
           aria-label="SummaSphere home"
         >
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center shadow-sm flex-shrink-0">
@@ -98,7 +98,7 @@ export default function NavBar({ currentView, setView, onOpenRouge, hasSummary }
         </a>
 
         {/* 2. Desktop Full Nav (>= 1024px) — All 7 tabs visible, More dropdown hidden */}
-        <nav className="hidden lg:flex items-center gap-1 flex-1 min-w-0 overflow-x-auto scrollbar-hide">
+        <nav className="hidden lg:flex items-center gap-1 xl:gap-1.5 flex-1 min-w-0 overflow-x-auto scrollbar-hide py-1 pr-3">
           {allTabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = currentView === tab.id;
