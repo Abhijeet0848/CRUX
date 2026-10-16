@@ -24,10 +24,10 @@ export default function MethodSelector({
   ];
 
   return (
-    <div className="bg-slate-50/80 border border-slate-200 rounded-xl p-3 sm:p-3.5 space-y-3 min-w-0 w-full">
+    <div className="bg-slate-50/80 border border-slate-200 rounded-xl p-2.5 sm:p-3 space-y-2.5 min-w-0 w-full">
       {/* Method Selection Heading */}
       <div>
-        <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">
+        <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-1">
           Summarization Method
         </label>
 
@@ -63,7 +63,7 @@ export default function MethodSelector({
 
       {/* Hybrid Weight Sliders — Conditional Visibility */}
       {method === 'hybrid' && (
-        <div className="pt-2.5 border-t border-slate-200/80 space-y-2 animate-in fade-in duration-150 min-w-0">
+        <div className="pt-2 border-t border-slate-200/80 space-y-2 animate-in fade-in duration-150 min-w-0">
           <div className="flex items-center justify-between text-xs font-semibold text-slate-700 min-w-0">
             <span className="flex items-center gap-1.5 truncate">
               <Sliders className="w-3.5 h-3.5 text-indigo-600 shrink-0" />

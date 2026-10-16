@@ -135,9 +135,9 @@ export default function InputCard({
       - Tablet (640-1023px): sm:p-5, natural height
       - Desktop (>= 1024px): lg:h-full lg:min-h-0 lg:p-6 lg:overflow-hidden (viewport-locked)
     */
-    <div className="w-full min-w-0 flex flex-col bg-white rounded-2xl border border-slate-200/90 shadow-sm p-3.5 sm:p-5 lg:p-6 lg:h-full lg:min-h-0 lg:overflow-hidden transition-shadow hover:shadow-md">
+    <div className="w-full min-w-0 flex flex-col bg-white rounded-2xl border border-slate-200 shadow-sm p-3.5 sm:p-4 lg:p-3.5 lg:h-full lg:overflow-y-auto transition-shadow hover:shadow-md">
       {/* 1. Header Row */}
-      <div className="flex-shrink-0 min-w-0 mb-2 sm:mb-2.5">
+      <div className="flex-shrink-0 min-w-0 mb-1.5">
         <div className="flex items-center justify-between gap-2 sm:gap-3 min-w-0">
           <div className="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1">
             <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center flex-shrink-0 shadow-2xs">
@@ -148,8 +148,8 @@ export default function InputCard({
               <h2 className="text-base sm:text-lg font-bold text-slate-900 leading-tight truncate">
                 Original Text
               </h2>
-              {/* Typography scale: text-xs sm:text-sm */}
-              <p className="text-xs sm:text-xs text-slate-500 font-medium truncate">
+              {/* Typography scale: text-xs */}
+              <p className="text-xs text-slate-600 font-medium truncate">
                 Input your source document to summarize
               </p>
             </div>
@@ -219,12 +219,9 @@ export default function InputCard({
 
       {/* 
         2. Textarea Container:
-        - Mobile (< 640px): w-full, min-h-[140px], resize-none, break-words whitespace-pre-wrap
-        - Tablet (640-1023px): min-h-[160px]
-        - Desktop (>= 1024px): lg:flex-1 lg:min-h-0 lg:h-auto overflow-y-auto
       */}
       <div
-        className="w-full min-w-0 flex flex-col relative group lg:flex-1 lg:min-h-0"
+        className="w-full min-w-0 flex flex-col relative group"
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleDrop}
       >
@@ -239,7 +236,7 @@ export default function InputCard({
           onKeyDown={handleKeyDown}
           placeholder="Paste or type your English or Hindi article here, or drag & drop a .TXT / .MD / .PDF file..."
           disabled={extracting}
-          className="w-full min-w-0 resize-none overflow-y-auto break-words whitespace-pre-wrap text-sm sm:text-base min-h-[140px] sm:min-h-[160px] lg:min-h-0 lg:flex-1 p-3 sm:p-3.5 bg-slate-50/60 hover:bg-slate-50/90 focus:bg-white border border-slate-200/90 focus:border-indigo-500 rounded-xl transition-all outline-none leading-relaxed text-slate-900 font-normal disabled:opacity-50 placeholder:text-slate-400 shadow-inner overflow-x-hidden focus-visible:ring-2 focus-visible:ring-indigo-500"
+          className="w-full min-h-[180px] max-h-[400px] px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-y text-sm leading-relaxed text-slate-900 placeholder:text-slate-400 transition-colors outline-none disabled:opacity-50"
         />
 
         {extracting && (
@@ -252,21 +249,21 @@ export default function InputCard({
 
       {/* 
         3. Textarea Controls & Actions:
-        - Mobile (< 640px): Stacked or wrapped flex-col sm:flex-row to prevent overlapping
-        - Action buttons ("Upload File", "Clear") placed neatly without overlapping placeholder
+        - Brand-aligned pill counter badges
+        - Action buttons ("Upload File", "Clear")
       */}
-      <div className="flex-shrink-0 min-w-0 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 my-2.5">
-        {/* Counter badges: flex-wrap so they wrap on narrow screens */}
-        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap min-w-0 font-mono text-[11px] sm:text-xs text-slate-600">
-          <span className="flex-shrink-0 whitespace-nowrap bg-slate-100 rounded-full px-2.5 py-0.5 border border-slate-200/80 font-semibold shadow-2xs">
+      <div className="flex-shrink-0 min-w-0 flex flex-col sm:flex-row sm:items-center justify-between gap-2 mt-1.5 mb-1">
+        {/* Counter badges */}
+        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap min-w-0">
+          <span className="bg-slate-100 text-slate-600 rounded-full px-2.5 py-0.5 text-xs font-medium">
             {charCount.toLocaleString()} chars
           </span>
-          <span className="flex-shrink-0 whitespace-nowrap bg-slate-100 rounded-full px-2.5 py-0.5 border border-slate-200/80 font-semibold shadow-2xs">
+          <span className="bg-slate-100 text-slate-600 rounded-full px-2.5 py-0.5 text-xs font-medium">
             {wordCount.toLocaleString()} words
           </span>
           {sentenceCount > 0 && (
-            <span className="flex-shrink-0 whitespace-nowrap bg-indigo-50 text-indigo-800 rounded-full px-2.5 py-0.5 border border-indigo-200/80 font-semibold shadow-2xs">
-              {sentenceCount} sentences
+            <span className="bg-slate-100 text-slate-600 rounded-full px-2.5 py-0.5 text-xs font-medium">
+              {sentenceCount} {sentenceCount === 1 ? 'sentence' : 'sentences'}
             </span>
           )}
         </div>
@@ -307,7 +304,7 @@ export default function InputCard({
       </div>
 
       {/* 4. Method Selection */}
-      <div className="flex-shrink-0 min-w-0 mb-2.5">
+      <div className="flex-shrink-0 min-w-0 mb-1">
         <MethodSelector
           method={method}
           setMethod={setMethod}
@@ -320,15 +317,15 @@ export default function InputCard({
         5. Summary Length Budget Slider:
         - Full width, labels positioned above and below to prevent inline squishing
       */}
-      <div className="flex-shrink-0 min-w-0 mb-2.5 bg-slate-50/80 border border-slate-200 rounded-xl p-3">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs sm:text-sm font-semibold text-slate-800 gap-1 mb-1.5 min-w-0">
+      <div className="flex-shrink-0 min-w-0 mb-1 bg-slate-50/80 border border-slate-200 rounded-xl p-2 sm:p-2.5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs sm:text-sm font-semibold text-slate-800 gap-1 mb-1 min-w-0">
           <span className="truncate text-slate-900 font-bold">Summary Length</span>
           <div className="flex items-center gap-1.5 text-xs">
             <span className="font-bold text-indigo-700">
               {numSentences} {numSentences === 1 ? 'sentence' : 'sentences'}
             </span>
             {compressionEstimate !== null && (
-              <span className="text-slate-500 font-normal">
+              <span className="text-slate-600 font-normal">
                 · ~{compressionEstimate}% of original
               </span>
             )}
@@ -341,11 +338,11 @@ export default function InputCard({
           max={Math.max(5, Math.min(10, sentenceCount || 10))}
           value={numSentences}
           onChange={(e) => setNumSentences(Number(e.target.value))}
-          className="w-full accent-indigo-600 cursor-pointer h-2 bg-slate-200 rounded-lg appearance-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus:outline-none my-1"
+          className="w-full accent-indigo-600 cursor-pointer h-2 bg-slate-200 rounded-lg appearance-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus:outline-none my-0.5"
           aria-label="Summary length in sentences"
         />
 
-        <div className="flex justify-between text-[10px] sm:text-xs text-slate-500 font-medium px-0.5 mt-1 min-w-0">
+        <div className="flex justify-between text-[10px] sm:text-xs text-slate-600 font-medium px-0.5 mt-0.5 min-w-0">
           <span className="flex-shrink-0">1 sentence</span>
           {sentenceCount > 1 && (
             <span className="truncate text-center px-1">
@@ -359,13 +356,13 @@ export default function InputCard({
       </div>
 
       {/* 6. Action CTA Button */}
-      <div className="flex-shrink-0 min-w-0 pt-0.5">
+      <div className="flex-shrink-0 min-w-0 pt-0">
         <button
           type="button"
           onClick={onSummarize}
           disabled={isSummarizeDisabled}
           title={!text.trim() ? 'Enter or upload text to summarize' : ''}
-          className={`w-full py-2.5 sm:py-3 px-5 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 select-none tracking-wide transition-all duration-150 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus:outline-none ${
+          className={`w-full py-2.5 px-5 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 select-none tracking-wide transition-all duration-150 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus:outline-none ${
             isSummarizeDisabled
               ? 'opacity-50 cursor-not-allowed bg-slate-200 text-slate-500 border border-slate-300'
               : 'bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-md hover:shadow-lg hover:scale-[1.01] active:scale-[0.99] cursor-pointer'
@@ -383,7 +380,7 @@ export default function InputCard({
             </>
           )}
         </button>
-        <p className="text-[11px] text-slate-400 mt-1 text-center font-normal truncate">
+        <p className="text-[11px] text-slate-500 mt-0.5 text-center font-normal truncate">
           Press Ctrl+Enter to summarize
         </p>
       </div>

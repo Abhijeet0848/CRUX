@@ -32,7 +32,7 @@ export default function MainLayout({
 }) {
   return (
     <div
-      className="w-full max-w-full min-w-0 flex flex-col gap-4 p-3 pb-24 sm:p-4 sm:pb-8 lg:grid lg:grid-cols-2 lg:gap-6 lg:p-6 lg:pb-0 lg:min-h-0 lg:overflow-hidden lg:flex-1 items-stretch"
+      className="w-full max-w-full min-w-0 flex flex-col gap-4 p-3 pb-24 sm:p-4 sm:pb-8 lg:grid lg:grid-cols-2 lg:gap-5 lg:p-4 xl:p-5 lg:min-h-0 lg:overflow-hidden lg:flex-1 items-stretch"
     >
       {/* Left Column: Input Card & Controls */}
       <div className="w-full min-w-0 lg:h-full lg:min-h-0 lg:overflow-hidden">
