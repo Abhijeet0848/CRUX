@@ -29,7 +29,6 @@ export default function MainLayout({
   error,
   summaryData,
   onClear,
-  onLoadSample,
 }) {
   return (
     <div
@@ -50,7 +49,6 @@ export default function MainLayout({
           loading={loading}
           error={error}
           onClear={onClear}
-          onLoadSample={onLoadSample}
         />
       </div>
 
@@ -83,5 +81,4 @@ MainLayout.propTypes = {
   error: PropTypes.string,
   summaryData: PropTypes.object,
   onClear: PropTypes.func,
-  onLoadSample: PropTypes.func,
 };

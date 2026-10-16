@@ -12,20 +12,6 @@ import {
 import MethodSelector from './MethodSelector';
 import { extractDocument } from '../services/api';
 
-export const DEFAULT_SAMPLE_ARTICLE = `Artificial intelligence is rapidly transforming modern healthcare delivery and clinical research. Machine learning models can analyze vast datasets of medical imaging and patient records far more rapidly than conventional methods. Researchers are deploying predictive algorithms to detect early warning signs of complex conditions before symptoms become severe. Diagnostic support tools powered by natural language processing help clinicians evaluate medical literature and synthesize relevant patient history. However, deploying automated intelligence requires strict adherence to data privacy, algorithmic transparency, and clinical validation. Health organizations must balance computational innovation with rigorous safeguards to protect sensitive patient records and maintain medical ethics.`;
-
-/**
- * InputCard
- *
- * Left panel of the Summarizer workspace:
- * Breakpoint strategy:
- * - Mobile (< 640px): Full-width, single column, natural height (min-h-[140px]),
- *   wrapped counter pills & action buttons ("Try sample", "Upload File"),
- *   vertically stacked method options, stacked hybrid sliders.
- * - Tablet (640px - 1023px): Single column, natural height, segmented method tabs.
- * - Desktop (>= 1024px): Strict half-width column, viewport-locked (h-full min-h-0),
- *   internal textarea vertical scroll (lg:flex-1 lg:min-h-0), pinned CTA button.
- */
 export default function InputCard({
   text,
   setText,
@@ -39,7 +25,6 @@ export default function InputCard({
   loading,
   error,
   onClear,
-  onLoadSample,
 }) {
   const fileInputRef = useRef(null);
   const textareaRef = useRef(null);
@@ -141,16 +126,6 @@ export default function InputCard({
     if (onClear) onClear();
   };
 
-  const handleLoadSampleText = () => {
-    if (onLoadSample) {
-      onLoadSample();
-    } else {
-      setText(DEFAULT_SAMPLE_ARTICLE);
-    }
-    setDocMeta(null);
-    setFileError('');
-  };
-
   const isSummarizeDisabled = !text.trim() || loading || extracting;
 
   return (
@@ -175,7 +150,7 @@ export default function InputCard({
               </h2>
               {/* Typography scale: text-xs sm:text-sm */}
               <p className="text-xs sm:text-xs text-slate-500 font-medium truncate">
-                Input your source document or try a sample
+                Input your source document to summarize
               </p>
             </div>
           </div>
@@ -278,7 +253,7 @@ export default function InputCard({
       {/* 
         3. Textarea Controls & Actions:
         - Mobile (< 640px): Stacked or wrapped flex-col sm:flex-row to prevent overlapping
-        - Action buttons ("Try sample", "Upload File", "Clear") placed neatly without overlapping placeholder
+        - Action buttons ("Upload File", "Clear") placed neatly without overlapping placeholder
       */}
       <div className="flex-shrink-0 min-w-0 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 my-2.5">
         {/* Counter badges: flex-wrap so they wrap on narrow screens */}
@@ -296,18 +271,8 @@ export default function InputCard({
           )}
         </div>
 
-        {/* Action Buttons: Try sample, Upload File, Clear */}
+        {/* Action Buttons: Upload File, Clear */}
         <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap sm:flex-nowrap flex-shrink-0 min-w-0">
-          <button
-            type="button"
-            onClick={handleLoadSampleText}
-            className="flex-shrink-0 whitespace-nowrap inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-purple-900 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg transition-all duration-150 cursor-pointer shadow-2xs active:scale-95 focus-visible:ring-2 focus-visible:ring-purple-500 focus:outline-none"
-            title="Load sample article"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-purple-700 flex-shrink-0" />
-            <span>Try sample</span>
-          </button>
-
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
@@ -439,5 +404,4 @@ InputCard.propTypes = {
   loading: PropTypes.bool,
   error: PropTypes.string,
   onClear: PropTypes.func,
-  onLoadSample: PropTypes.func,
 };

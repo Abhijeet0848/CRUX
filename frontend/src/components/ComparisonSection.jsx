@@ -16,8 +16,6 @@ import {
   Zap,
   Plus,
   Minus,
-  AlertCircle,
-  X,
   Columns,
   Repeat,
   Gauge,
@@ -38,11 +36,9 @@ export default function ComparisonSection({
   referenceSummary = '',
   setReferenceSummary,
   onGoToSummarizer,
-  onLoadSampleAndAnalyze,
 }) {
   const [activeTab, setActiveTab] = useState('table'); // 'table' | 'visuals' | 'summaries'
   const [showRefInput, setShowRefInput] = useState(false);
-  const [isBannerDismissed, setIsBannerDismissed] = useState(false);
   const [copiedMethod, setCopiedMethod] = useState(null);
 
   const hasSource = Boolean(sourceText?.trim());
@@ -66,41 +62,6 @@ export default function ComparisonSection({
           aria-label="Algorithm Comparison Setup"
           className="max-w-3xl w-full bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-10 text-center transition-all"
         >
-          {/* 4. Inline Info Banner (amber-50, inside the card, mb-6, dismissible X, auto-hidden when text present) */}
-          {!hasSource && !isBannerDismissed && (
-            <div
-              role="alert"
-              className="bg-amber-50 border border-amber-200 text-amber-800 rounded-xl px-4 py-3 text-sm flex items-center justify-between gap-3 mb-6 text-left"
-            >
-              <div className="flex items-center gap-2.5">
-                <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" size={16} />
-                <span>
-                  Add an article in the{' '}
-                  {onGoToSummarizer ? (
-                    <button
-                      type="button"
-                      onClick={onGoToSummarizer}
-                      className="font-semibold underline hover:text-amber-950 cursor-pointer"
-                    >
-                      Summarizer Studio
-                    </button>
-                  ) : (
-                    'Summarizer Studio'
-                  )}{' '}
-                  to run a comparison.
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsBannerDismissed(true)}
-                className="text-amber-600 hover:text-amber-800 p-0.5 rounded-lg transition-colors cursor-pointer shrink-0"
-                aria-label="Dismiss warning"
-              >
-                <X size={16} />
-              </button>
-            </div>
-          )}
-
           {/* 1. Hero Icon (Scale from Lucide, 32px in w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600) */}
           <div className="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-6 shadow-xs">
             <Scale size={32} className="w-8 h-8" />
@@ -469,5 +430,4 @@ ComparisonSection.propTypes = {
   referenceSummary: PropTypes.string,
   setReferenceSummary: PropTypes.func,
   onGoToSummarizer: PropTypes.func,
-  onLoadSampleAndAnalyze: PropTypes.func,
 };

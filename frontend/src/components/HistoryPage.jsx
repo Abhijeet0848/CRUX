@@ -45,7 +45,7 @@ const getMethodLabel = (method) => {
   return method || 'Summary';
 };
 
-export default function HistoryPage({ onSelectRecord, onBackToWorkspace, onLoadSampleAndAnalyze }) {
+export default function HistoryPage({ onSelectRecord, onBackToWorkspace }) {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -123,7 +123,6 @@ export default function HistoryPage({ onSelectRecord, onBackToWorkspace, onLoadS
         description={config.description}
         preview={config.preview}
         onPrimary={onBackToWorkspace}
-        onSecondary={onLoadSampleAndAnalyze}
       />
     );
   }
@@ -309,5 +308,4 @@ export default function HistoryPage({ onSelectRecord, onBackToWorkspace, onLoadS
 HistoryPage.propTypes = {
   onSelectRecord: PropTypes.func.isRequired,
   onBackToWorkspace: PropTypes.func,
-  onLoadSampleAndAnalyze: PropTypes.func,
 };

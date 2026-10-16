@@ -26,5 +26,4 @@ SummarizePage.propTypes = {
   error: PropTypes.string,
   summaryData: PropTypes.object,
   onClear: PropTypes.func,
-  onLoadSample: PropTypes.func,
 };

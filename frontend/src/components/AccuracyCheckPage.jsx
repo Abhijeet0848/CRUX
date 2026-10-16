@@ -22,7 +22,6 @@ import { emptyStatesConfig } from '../config/emptyStates';
 export default function AccuracyCheckPage({
   candidateSummary = '',
   onGoToSummarizer,
-  onLoadSampleAndAnalyze,
 }) {
   const [reference, setReference] = useState('');
   const [candidate, setCandidate] = useState(candidateSummary || '');
@@ -94,7 +93,6 @@ export default function AccuracyCheckPage({
         description={config.description}
         preview={config.preview}
         onPrimary={onGoToSummarizer}
-        onSecondary={onLoadSampleAndAnalyze}
       />
     );
   }
@@ -266,5 +264,4 @@ export default function AccuracyCheckPage({
 AccuracyCheckPage.propTypes = {
   candidateSummary: PropTypes.string,
   onGoToSummarizer: PropTypes.func.isRequired,
-  onLoadSampleAndAnalyze: PropTypes.func,
 };

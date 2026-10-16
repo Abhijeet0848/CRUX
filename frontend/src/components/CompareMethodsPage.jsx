@@ -17,7 +17,6 @@ export default function CompareMethodsPage({
   referenceSummary = '',
   setReferenceSummary,
   onGoToSummarizer,
-  onLoadSampleAndAnalyze,
 }) {
   const hasSource = Boolean(sourceText?.trim());
 
@@ -40,7 +39,6 @@ export default function CompareMethodsPage({
         referenceSummary={referenceSummary}
         setReferenceSummary={setReferenceSummary}
         onGoToSummarizer={onGoToSummarizer}
-        onLoadSampleAndAnalyze={onLoadSampleAndAnalyze}
       />
     </div>
   );
@@ -54,5 +52,4 @@ CompareMethodsPage.propTypes = {
   referenceSummary: PropTypes.string,
   setReferenceSummary: PropTypes.func,
   onGoToSummarizer: PropTypes.func,
-  onLoadSampleAndAnalyze: PropTypes.func,
 };

@@ -13,8 +13,6 @@ import RougeModal from './components/RougeModal';
 import BottomNavBar from './components/BottomNavBar';
 import { summarizeText, compareAlgorithms } from './services/api';
 
-export const SAMPLE_ARTICLE = `Artificial intelligence is rapidly transforming modern healthcare delivery and clinical research. Machine learning models can analyze vast datasets of medical imaging and patient records far more rapidly than conventional methods. Researchers are deploying predictive algorithms to detect early warning signs of complex conditions before symptoms become severe. Diagnostic support tools powered by natural language processing help clinicians evaluate medical literature and synthesize relevant patient history. However, deploying automated intelligence requires strict adherence to data privacy, algorithmic transparency, and clinical validation. Health organizations must balance computational innovation with rigorous safeguards to protect sensitive patient records and maintain medical ethics.`;
-
 /**
  * App Shell
  *
@@ -109,11 +107,6 @@ export default function App() {
     }
   };
 
-  const handleLoadSample = () => {
-    setText(SAMPLE_ARTICLE);
-    setError('');
-  };
-
   const handleSelectHistoryRecord = (record) => {
     if (record.original_text) {
       setText(record.original_text);
@@ -197,7 +190,6 @@ export default function App() {
                 setSummaryData(null);
                 setError('');
               }}
-              onLoadSample={handleLoadSample}
             />
 
             {/* Mobile & Tablet Additional Metrics (< 1024px) */}
@@ -300,7 +292,6 @@ export default function App() {
               referenceSummary={referenceSummary}
               setReferenceSummary={setReferenceSummary}
               onGoToSummarizer={() => setCurrentView('workspace')}
-              onLoadSampleAndAnalyze={handleLoadSample}
             />
           </div>
         )}
@@ -321,7 +312,6 @@ export default function App() {
             <AccuracyCheckPage
               candidateSummary={summaryData?.summary || ''}
               onGoToSummarizer={() => setCurrentView('workspace')}
-              onLoadSampleAndAnalyze={handleLoadSample}
             />
           </div>
         )}

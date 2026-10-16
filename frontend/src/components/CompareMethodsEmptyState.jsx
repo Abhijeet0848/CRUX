@@ -23,7 +23,6 @@ import EmptyState from './EmptyState';
  *   - Central icon badge: w-14 h-14 bg-emerald-50 with w-7 h-7 text-emerald-500
  *   - Typography: title text-lg, description text-sm
  *   - Feature cards: full-width flex-col gap-3, each p-4 with w-9 h-9 icon and text-sm
- *   - Warning banner: restructured above card, dismissible with localStorage persistence
  *   - CTA button: full-width (w-full), text-only "Add an Article to Compare"
  * - Tablet (640px - 1023px):
  *   - Container: sm:pt-6 sm:px-6
@@ -41,7 +40,6 @@ export default function CompareMethodsEmptyState({
   showBottomNav = false,
   currentView = 'compare',
   setView,
-  showBanner = true,
 }) {
   const features = [
     {
@@ -70,16 +68,6 @@ export default function CompareMethodsEmptyState({
     },
   ];
 
-  // Restructured warning banner above card, dismissible, persistent in localStorage
-  const bannerConfig = showBanner
-    ? {
-        dismissKey: 'summasphere_compare_banner_dismissed',
-        message: 'Add an article in the Summarizer Studio to run a 3-way algorithm comparison.',
-        linkText: 'Summarizer Studio',
-        linkAction: onGoToSummarizer,
-      }
-    : null;
-
   return (
     <EmptyState
       icon={Scale}
@@ -92,7 +80,6 @@ export default function CompareMethodsEmptyState({
       ctaAction={onGoToSummarizer}
       secondaryLabel="Go to Summarize"
       onSecondary={onGoToSummarizer}
-      banner={bannerConfig}
       showHeader={showHeader}
       showBottomNav={showBottomNav}
       currentView={currentView}
@@ -107,5 +94,4 @@ CompareMethodsEmptyState.propTypes = {
   showBottomNav: PropTypes.bool,
   currentView: PropTypes.string,
   setView: PropTypes.func,
-  showBanner: PropTypes.bool,
 };
