@@ -13,8 +13,31 @@ import RougeModal from './components/RougeModal';
 import BottomNavBar from './components/BottomNavBar';
 import { summarizeText, compareAlgorithms } from './services/api';
 
+export const SAMPLE_ARTICLE = `Artificial intelligence is rapidly transforming modern healthcare delivery and clinical research. Machine learning models can analyze vast datasets of medical imaging and patient records far more rapidly than conventional methods. Researchers are deploying predictive algorithms to detect early warning signs of complex conditions before symptoms become severe. Diagnostic support tools powered by natural language processing help clinicians evaluate medical literature and synthesize relevant patient history. However, deploying automated intelligence requires strict adherence to data privacy, algorithmic transparency, and clinical validation. Health organizations must balance computational innovation with rigorous safeguards to protect sensitive patient records and maintain medical ethics.`;
+
+/**
+ * App Shell
+ *
+ * Root container for SummaSphere application:
+ * Breakpoint strategy:
+ * - Mobile (< 640px):
+ *   - Root: w-full max-w-full min-h-screen (natural page scroll, no fixed height)
+ *   - Header: compact h-14 with logo + title, desktop tabs hidden, icon-only Accuracy Check
+ *   - Main layout: single column stacked, pb-24 reserving clearance for BottomNav
+ *   - Bottom navigation: fixed at bottom (h-16), 5 navigation items
+ * - Tablet (640px - 1023px):
+ *   - Root: w-full max-w-full min-h-screen (smooth natural page scroll)
+ *   - Header: h-16, top navigation visible with "More" dropdown
+ *   - Main layout: single column stacked, natural scroll, sm:pb-8
+ *   - Bottom navigation: hidden (sm:hidden)
+ * - Desktop (>= 1024px):
+ *   - Root: lg:h-screen lg:overflow-hidden (strict viewport-locked layout, no page scroll)
+ *   - Header: lg:h-16 with full segmented navigation bar
+ *   - Main layout: lg:grid lg:grid-cols-2 lg:gap-6 lg:p-6 lg:min-h-0 lg:overflow-hidden
+ *   - Bottom navigation: hidden
+ */
 export default function App() {
-  const [currentView, setCurrentView] = useState('workspace'); // 'workspace' | 'nlp_analysis' | 'ranking' | 'analytics' | 'compare' | 'history'
+  const [currentView, setCurrentView] = useState('workspace'); // 'workspace' | 'nlp_analysis' | 'ranking' | 'analytics' | 'compare' | 'history' | 'accuracy'
 
   const [text, setText] = useState('');
   const [method, setMethod] = useState('hybrid');
@@ -32,7 +55,7 @@ export default function App() {
 
   const [isRougeOpen, setIsRougeOpen] = useState(false);
 
-  // Clear any stale errors whenever navigating between tabs
+  // Clear stale errors when navigating between tabs
   useEffect(() => {
     setError('');
   }, [currentView]);
@@ -86,6 +109,11 @@ export default function App() {
     }
   };
 
+  const handleLoadSample = () => {
+    setText(SAMPLE_ARTICLE);
+    setError('');
+  };
+
   const handleSelectHistoryRecord = (record) => {
     if (record.original_text) {
       setText(record.original_text);
@@ -110,34 +138,14 @@ export default function App() {
     setCurrentView('workspace');
   };
 
-  const renderEmptyState = (title, description) => (
-    <div className="min-h-[calc(100vh-250px)] flex items-center justify-center p-4">
-      <div className="bg-white border border-slate-200 rounded-2xl p-8 sm:px-10 sm:py-12 text-center shadow-sm max-w-xl w-full mx-auto space-y-5">
-        <div className="w-16 h-16 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center mx-auto text-indigo-600 shadow-xs">
-          <BarChart3 className="w-8 h-8 text-indigo-600" />
-        </div>
-        <div className="space-y-1.5">
-          <h3 className="text-lg font-bold text-slate-900">{title}</h3>
-          <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">{description}</p>
-        </div>
-        <div className="pt-2">
-          <button
-            type="button"
-            onClick={() => setCurrentView('workspace')}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all rounded-xl px-6 py-3 font-medium cursor-pointer shadow-md focus-visible:ring-2 focus-visible:ring-indigo-500 focus:outline-none"
-          >
-            <Zap className="w-[18px] h-[18px]" />
-            <span>Go to Summarizer</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
   return (
-    /* Root Wrapper: h-screen w-screen max-w-full overflow-hidden flex flex-col (prevents page-level scrollbars) */
-    <div className="h-screen w-screen max-w-full overflow-hidden flex flex-col bg-gradient-to-b from-slate-100 via-slate-50 to-slate-100/90 text-slate-900 font-sans">
-      {/* Top Navigation: flex-shrink-0 (pinned at top) */}
+    /* 
+      Root Container:
+      - Mobile (< 640px) & Tablet (640-1023px): w-full max-w-full min-h-screen flex flex-col (allows natural vertical page scroll)
+      - Desktop (>= 1024px): lg:h-screen lg:overflow-hidden (viewport-locked layout)
+    */
+    <div className="w-full max-w-full min-h-screen lg:h-screen lg:overflow-hidden flex flex-col bg-gradient-to-b from-slate-100 via-slate-50 to-slate-100/90 text-slate-900 font-sans">
+      {/* Top Header: flex-shrink-0 (sticky at top) */}
       <NavBar
         currentView={currentView}
         setView={setCurrentView}
@@ -145,12 +153,15 @@ export default function App() {
         hasSummary={!!summaryData}
       />
 
-      {/* Main Container: flex-1 w-full max-w-full min-h-0 min-w-0 px-4 lg:px-6 py-4 flex flex-col overflow-x-hidden lg:overflow-hidden */}
-      {/* min-w-0 prevents horizontal overflow and allows flex/grid children to shrink below intrinsic content width */}
-      <main className="flex-1 w-full max-w-full min-h-0 min-w-0 px-4 lg:px-6 py-4 flex flex-col overflow-x-hidden overflow-y-auto lg:overflow-hidden">
+      {/* 
+        Main View Container:
+        - Mobile (< 640px): flex-1 w-full max-w-full min-w-0 overflow-x-hidden (natural page scroll)
+        - Desktop (>= 1024px): lg:overflow-hidden lg:flex-1 lg:min-h-0
+      */}
+      <main className="flex-1 w-full max-w-full min-h-0 min-w-0 flex flex-col overflow-x-hidden lg:overflow-hidden">
         {/* Error Alert */}
         {error && (
-          <div className="flex-shrink-0 min-w-0 mb-3 p-3 bg-red-50/90 border border-red-200 rounded-xl text-xs sm:text-sm font-semibold text-red-900 flex items-center justify-between shadow-xs">
+          <div className="flex-shrink-0 min-w-0 mx-3 sm:mx-6 my-2 p-3 bg-red-50/90 border border-red-200 rounded-xl text-xs sm:text-sm font-semibold text-red-900 flex items-center justify-between shadow-xs">
             <div className="flex items-center gap-2 min-w-0 truncate">
               <span className="flex-shrink-0">⚠️</span>
               <span className="truncate">{error}</span>
@@ -158,16 +169,16 @@ export default function App() {
             <button
               onClick={() => setError('')}
               className="text-red-700 hover:text-red-900 font-bold text-sm cursor-pointer ml-2 flex-shrink-0"
+              aria-label="Dismiss error"
             >
               ✕
             </button>
           </div>
         )}
 
-        {/* 1. Summarizer Studio View: flex-1 min-h-0 min-w-0 overflow-hidden */}
-        {/* min-w-0 prevents workspace container from forcing horizontal expansion */}
+        {/* 1. Summarizer Studio View */}
         {currentView === 'workspace' && (
-          <div className="flex-1 w-full min-h-0 min-w-0 flex flex-col overflow-hidden">
+          <div className="flex-1 w-full min-h-0 min-w-0 flex flex-col lg:overflow-hidden">
             <SummarizePage
               text={text}
               setText={setText}
@@ -186,11 +197,12 @@ export default function App() {
                 setSummaryData(null);
                 setError('');
               }}
+              onLoadSample={handleLoadSample}
             />
 
-            {/* Mobile-only additional metrics (<1024px) allowing vertical page scrolling on small viewports */}
+            {/* Mobile & Tablet Additional Metrics (< 1024px) */}
             {summaryData && (
-              <div className="lg:hidden space-y-4 animate-fade-up mt-4 pb-24">
+              <div className="lg:hidden space-y-4 animate-fade-up px-3 sm:px-4 mt-2 pb-24 sm:pb-8">
                 <StatsGrid stats={summaryData} />
 
                 {/* Quick Navigation Cards */}
@@ -244,7 +256,7 @@ export default function App() {
 
         {/* 2. NLP Analysis View */}
         {currentView === 'nlp_analysis' && (
-          <div className="w-full">
+          <div className="w-full min-w-0 p-3 sm:p-4 lg:p-6 pb-24 sm:pb-8 lg:pb-6 overflow-y-auto">
             <NLPAnalysis
               summaryData={summaryData}
               originalText={text}
@@ -258,7 +270,7 @@ export default function App() {
 
         {/* 3. Sentence Ranking View */}
         {currentView === 'ranking' && (
-          <div className="w-full">
+          <div className="w-full min-w-0 p-3 sm:p-4 lg:p-6 pb-24 sm:pb-8 lg:pb-6 overflow-y-auto">
             <SentenceScoresPage
               sentences={summaryData?.sentences}
               onGoToSummarizer={() => setCurrentView('workspace')}
@@ -268,7 +280,7 @@ export default function App() {
 
         {/* 4. Stats & Charts Analytics View */}
         {currentView === 'analytics' && (
-          <div className="w-full">
+          <div className="w-full min-w-0 p-3 sm:p-4 lg:p-6 pb-24 sm:pb-8 lg:pb-6 overflow-y-auto">
             <StatsChartsPage
               summaryData={summaryData}
               originalText={text}
@@ -279,7 +291,7 @@ export default function App() {
 
         {/* 5. Algorithm Comparison View */}
         {currentView === 'compare' && (
-          <div className="w-full">
+          <div className="w-full min-w-0 p-3 sm:p-4 lg:p-6 pb-24 sm:pb-8 lg:pb-6 overflow-y-auto">
             <CompareMethodsPage
               sourceText={text}
               compareData={compareData}
@@ -288,13 +300,14 @@ export default function App() {
               referenceSummary={referenceSummary}
               setReferenceSummary={setReferenceSummary}
               onGoToSummarizer={() => setCurrentView('workspace')}
+              onLoadSampleAndAnalyze={handleLoadSample}
             />
           </div>
         )}
 
         {/* 6. History Database View */}
         {currentView === 'history' && (
-          <div className="w-full">
+          <div className="w-full min-w-0 p-3 sm:p-4 lg:p-6 pb-24 sm:pb-8 lg:pb-6 overflow-y-auto">
             <HistoryPage
               onSelectRecord={handleSelectHistoryRecord}
               onBackToWorkspace={() => setCurrentView('workspace')}
@@ -304,10 +317,11 @@ export default function App() {
 
         {/* 7. Accuracy Check View */}
         {currentView === 'accuracy' && (
-          <div className="w-full">
+          <div className="w-full min-w-0 p-3 sm:p-4 lg:p-6 pb-24 sm:pb-8 lg:pb-6 overflow-y-auto">
             <AccuracyCheckPage
               candidateSummary={summaryData?.summary || ''}
               onGoToSummarizer={() => setCurrentView('workspace')}
+              onLoadSampleAndAnalyze={handleLoadSample}
             />
           </div>
         )}
@@ -320,12 +334,12 @@ export default function App() {
         candidateSummary={summaryData?.summary || ''}
       />
 
-      {/* Footer: flex-shrink-0 compact status bar */}
-      <footer className="flex-shrink-0 border-t border-slate-200/80 bg-white py-1.5 px-4 sm:px-6 text-center lg:text-left text-[11px] text-slate-400 font-medium pb-20 lg:pb-1.5">
+      {/* Footer: Compact status bar with clearance on mobile */}
+      <footer className="flex-shrink-0 border-t border-slate-200/80 bg-white py-2 px-4 sm:px-6 text-center lg:text-left text-[11px] text-slate-400 font-medium pb-20 sm:pb-2 lg:pb-2">
         <p>SummaSphere v1.0.0 · Intelligent Extractive Text Summarization System</p>
       </footer>
 
-      {/* Floating Sticky Bottom Navigation Bar */}
+      {/* Floating Sticky Bottom Navigation Bar (Visible only on mobile < 640px) */}
       <BottomNavBar
         currentView={currentView}
         setView={setCurrentView}
