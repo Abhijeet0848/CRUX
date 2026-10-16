@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   BarChart3,
   ListOrdered,
@@ -25,17 +24,9 @@ import {
   AlignJustify,
   Waves,
 } from 'lucide-react';
-import {
-  RankedListMockVisual,
-  ChartMockVisual,
-  CompareMockVisual,
-  HistoryMockVisual,
-  AccuracyMockVisual,
-} from '../components/EmptyState.mockVisuals';
 
 /**
  * Per-Tab Empty State Configurations
- * Uses React.createElement to remain 100% standard ES module without JSX syntax requirements.
  */
 export const emptyStates = {
   nlpAnalysis: {
@@ -86,7 +77,6 @@ export const emptyStates = {
         hint: 'Top-K sentences highlighted in-source',
       },
     ],
-    mockVisual: React.createElement(RankedListMockVisual),
   },
 
   statsCharts: {
@@ -112,7 +102,6 @@ export const emptyStates = {
         hint: 'Avg words per sentence',
       },
     ],
-    mockVisual: React.createElement(ChartMockVisual),
   },
 
   compareMethods: {
@@ -138,7 +127,6 @@ export const emptyStates = {
         hint: 'Which method scores higher',
       },
     ],
-    mockVisual: React.createElement(CompareMockVisual),
   },
 
   history: {
@@ -164,7 +152,6 @@ export const emptyStates = {
         hint: 'Download as JSON / TXT',
       },
     ],
-    mockVisual: React.createElement(HistoryMockVisual),
   },
 
   accuracyCheck: {
@@ -190,7 +177,6 @@ export const emptyStates = {
         hint: 'Longest common subsequence',
       },
     ],
-    mockVisual: React.createElement(AccuracyMockVisual),
   },
 };
 

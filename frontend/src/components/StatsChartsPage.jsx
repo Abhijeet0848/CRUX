@@ -9,7 +9,7 @@ import { emptyStatesConfig } from '../config/emptyStates';
 /**
  * StatsChartsPage
  * Renders statistical KPI cards and charts when summary data is present,
- * or the customized blue EmptyState with histogram mock visual when empty.
+ * or the customized blue EmptyState when empty.
  */
 export default function StatsChartsPage({
   summaryData,
@@ -25,7 +25,6 @@ export default function StatsChartsPage({
         title={config.title}
         description={config.description}
         preview={config.preview}
-        mockVisual={config.mockVisual}
         onPrimary={onGoToSummarizer}
       />
     );

@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 
 /**
- * SummaryCard (SummaryPanel)
+ * SummaryCard
  *
  * Right panel of the Summarizer workspace:
  * Breakpoint strategy:

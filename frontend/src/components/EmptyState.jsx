@@ -79,7 +79,6 @@ export default function EmptyState({
   title,
   description,
   preview,
-  mockVisual,
   features,
   ctaLabel,
   ctaAction,
@@ -132,8 +131,8 @@ export default function EmptyState({
     subtitle: p.hint || p.subtitle,
   })) : []);
 
-  // Resolve visual preview element (mockVisual or preview node)
-  const resolvedPreview = mockVisual || (!Array.isArray(preview) ? preview : null);
+  // Resolve visual preview element if custom node is provided
+  const resolvedPreview = !Array.isArray(preview) ? preview : null;
 
   return (
     /* 
@@ -360,7 +359,6 @@ EmptyState.propTypes = {
   title: PropTypes.string.isRequired,
   description: PropTypes.string,
   preview: PropTypes.oneOfType([PropTypes.node, PropTypes.array]),
-  mockVisual: PropTypes.node,
   features: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string,

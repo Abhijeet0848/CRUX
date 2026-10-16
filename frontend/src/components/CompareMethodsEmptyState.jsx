@@ -10,72 +10,11 @@ import {
 import EmptyState from './EmptyState';
 
 /**
- * MockComparisonPreview
- *
- * Visual preview component showing three side-by-side mini-summary cards
- * (Frequency / TF-IDF / Hybrid) with colored top borders, tiny word counts,
- * and 2-line truncated snippets. Matches the visual preview pattern of sibling empty states.
- */
-function MockComparisonPreview() {
-  const methods = [
-    {
-      name: 'Frequency',
-      count: '38 words',
-      border: 'border-t-emerald-500',
-      badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200/80',
-      snippet: 'Selects sentences with highest raw occurrence of salient keywords...',
-    },
-    {
-      name: 'TF-IDF',
-      count: '42 words',
-      border: 'border-t-indigo-500',
-      badgeBg: 'bg-indigo-50 text-indigo-700 border-indigo-200/80',
-      snippet: 'Weights distinctive rare vocabulary against total corpus frequency...',
-    },
-    {
-      name: 'Hybrid',
-      count: '40 words',
-      border: 'border-t-purple-500',
-      badgeBg: 'bg-purple-50 text-purple-700 border-purple-200/80',
-      snippet: 'Blends frequency & TF-IDF metrics for balanced coverage & coherence...',
-    },
-  ];
-
-  return (
-    <div
-      aria-hidden="true"
-      className="grid grid-cols-3 gap-2 sm:gap-3 w-full mt-5 select-none"
-    >
-      {methods.map((item) => (
-        <div
-          key={item.name}
-          className={`flex flex-col text-left p-2.5 sm:p-3 bg-gray-50/90 rounded-xl border border-gray-100 border-t-2 ${item.border} shadow-2xs transition-colors`}
-        >
-          <div className="flex items-center justify-between gap-1 mb-1.5 flex-wrap">
-            <span
-              className={`text-[10px] sm:text-xs font-bold px-1.5 py-0.5 rounded-md border ${item.badgeBg}`}
-            >
-              {item.name}
-            </span>
-            <span className="text-[9px] sm:text-[11px] text-gray-500 font-medium tabular-nums">
-              {item.count}
-            </span>
-          </div>
-          <p className="text-[10px] sm:text-xs text-gray-500 line-clamp-2 leading-tight">
-            {item.snippet}
-          </p>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-/**
  * CompareMethodsEmptyState
  *
  * Mobile-first empty state for the "Compare Methods" view when no summary has been run.
  * Shares the unified pattern of sibling NLP Analysis and Sentence Scores empty states
- * (icon badge → title → description → preview → feature list → CTA button).
+ * (icon badge → title → description → feature list → CTA button).
  *
  * Breakpoint strategy:
  * - Mobile (< 640px):
@@ -148,7 +87,6 @@ export default function CompareMethodsEmptyState({
       accent="emerald"
       title="Compare All 3 Summarization Methods"
       description="See summaries created by Word Frequency, Key Words (TF-IDF), and Combined (Hybrid) side-by-side."
-      preview={MockComparisonPreview}
       features={features}
       ctaLabel="Add an Article to Compare"
       ctaAction={onGoToSummarizer}

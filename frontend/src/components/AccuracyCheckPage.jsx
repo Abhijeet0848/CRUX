@@ -93,7 +93,6 @@ export default function AccuracyCheckPage({
         title={config.title}
         description={config.description}
         preview={config.preview}
-        mockVisual={config.mockVisual}
         onPrimary={onGoToSummarizer}
         onSecondary={onLoadSampleAndAnalyze}
       />

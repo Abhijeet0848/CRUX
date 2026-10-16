@@ -122,7 +122,6 @@ export default function HistoryPage({ onSelectRecord, onBackToWorkspace, onLoadS
         title={config.title}
         description={config.description}
         preview={config.preview}
-        mockVisual={config.mockVisual}
         onPrimary={onBackToWorkspace}
         onSecondary={onLoadSampleAndAnalyze}
       />

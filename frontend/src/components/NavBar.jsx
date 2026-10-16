@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
+  Globe,
   Sparkles,
   BarChart3,
   ListOrdered,
@@ -9,56 +10,43 @@ import {
   History,
   Target,
   ChevronDown,
-  ChevronLeft,
 } from 'lucide-react';
-import logoImg from '../assets/logo.png';
-
-const PAGE_TITLES = {
-  workspace: 'SummaSphere',
-  nlp_analysis: 'NLP Analysis',
-  ranking: 'Sentence Scores',
-  analytics: 'Stats & Charts',
-  compare: 'Compare Methods',
-  history: 'History',
-  accuracy: 'Accuracy Check',
-};
 
 /**
  * NavBar (Header)
  *
- * Responsive header implementation adhering to mobile-first breakpoint rules:
- * - Mobile (< 640px):
- *   - On workspace: Logo + "SummaSphere" title + icon-only Accuracy Check
- *   - On sub-pages (e.g. NLP Analysis): Back chevron arrow on left, centered page title,
- *     and icon button on right for a balanced, native app feel.
- *   - Height: h-14, Padding: px-3
- * - Tablet (640px - 1023px):
- *   - Height: sm:h-16, Padding: sm:px-4
- *   - Logo + title on left, primary tab + "More" dropdown in center
- *   - "Accuracy Check" shows both icon and text label
- * - Desktop (>= 1024px):
- *   - Height: lg:h-16, Padding: lg:px-6
- *   - Full segmented navigation bar with all tabs visible
+ * Responsive header implementation:
+ * - Brand: Protected with flex-shrink-0, mr-4 md:mr-6, whitespace-nowrap
+ * - Desktop (>= 1024px, lg breakpoint):
+ *   - Shows ALL 7 tabs in desktop nav: Summarize, NLP Analysis, Sentence Scores,
+ *     Stats & Charts, Compare Methods, History, Accuracy Check
+ *   - "More" dropdown is completely hidden
+ * - Mobile / Tablet (< 1024px):
+ *   - Shows: Summarize (primary), "More ▾" dropdown (with the 5 secondary tabs),
+ *     and Accuracy Check (as right-side primary action)
  */
 export default function NavBar({ currentView, setView, onOpenRouge, hasSummary }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  const isSubPage = currentView !== 'workspace';
-  const pageTitle = PAGE_TITLES[currentView] || 'SummaSphere';
+  // All 7 tabs visible on desktop (>= 1024px)
+  const allTabs = [
+    { id: 'workspace', label: 'Summarize', icon: Sparkles },
+    { id: 'nlp_analysis', label: 'NLP Analysis', icon: Layers, requiresSummary: true },
+    { id: 'ranking', label: 'Sentence Scores', icon: ListOrdered, requiresSummary: true },
+    { id: 'analytics', label: 'Stats & Charts', icon: BarChart3, requiresSummary: true },
+    { id: 'compare', label: 'Compare Methods', icon: Scale },
+    { id: 'history', label: 'History', icon: History },
+    { id: 'accuracy', label: 'Accuracy Check', icon: Target },
+  ];
 
-  const mainItem = {
-    id: 'workspace',
-    label: 'Summarize',
-    icon: Sparkles,
-  };
-
+  // The 5 secondary tabs grouped inside "More ▾" dropdown on < 1024px
   const secondaryItems = [
-    { id: 'nlp_analysis', label: 'NLP Analysis', shortLabel: 'NLP', icon: Layers, requiresSummary: true },
-    { id: 'ranking', label: 'Sentence Scores', shortLabel: 'Scores', icon: ListOrdered, requiresSummary: true },
-    { id: 'analytics', label: 'Stats & Charts', shortLabel: 'Stats', icon: BarChart3, requiresSummary: true },
-    { id: 'compare', label: 'Compare Methods', shortLabel: 'Compare', icon: Scale },
-    { id: 'history', label: 'History', shortLabel: 'History', icon: History },
+    { id: 'nlp_analysis', label: 'NLP Analysis', icon: Layers, requiresSummary: true },
+    { id: 'ranking', label: 'Sentence Scores', icon: ListOrdered, requiresSummary: true },
+    { id: 'analytics', label: 'Stats & Charts', icon: BarChart3, requiresSummary: true },
+    { id: 'compare', label: 'Compare Methods', icon: Scale },
+    { id: 'history', label: 'History', icon: History },
   ];
 
   const isMoreActive = secondaryItems.some((item) => item.id === currentView);
@@ -79,241 +67,151 @@ export default function NavBar({ currentView, setView, onOpenRouge, hasSummary }
     setIsDropdownOpen(false);
   };
 
+  const handleAccuracyClick = () => {
+    if (onOpenRouge && currentView === 'workspace') {
+      onOpenRouge();
+    } else {
+      setView('accuracy');
+    }
+    setIsDropdownOpen(false);
+  };
+
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs flex-shrink-0 w-full max-w-full">
-      {/* 
-        Header Inner Padding:
-        - Mobile (< 640px): px-3
-        - Tablet (640-1023px): sm:px-4
-        - Desktop (>= 1024px): lg:px-6
-      */}
-      <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
-        {/* 
-          Header Row:
-          - Mobile (< 640px): h-14
-          - Desktop & Tablet (>= 640px): sm:h-16
-        */}
-        <div className="h-14 sm:h-16 flex items-center justify-between gap-2 sm:gap-4 min-w-0">
-          {/* ========================================================= */}
-          {/* Mobile Sub-page Variant (< 640px): Back arrow + Centered Title */}
-          {/* ========================================================= */}
-          {isSubPage ? (
-            <div className="flex sm:hidden items-center justify-between w-full min-w-0">
-              {/* Back button */}
-              <button
-                type="button"
-                onClick={() => handleSelectNav('workspace')}
-                className="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 hover:text-slate-900 -ml-1 p-1.5 rounded-lg active:bg-slate-100 cursor-pointer transition-colors shrink-0"
-                aria-label="Back to Summarize"
-              >
-                <ChevronLeft className="w-5 h-5 text-slate-700 shrink-0" />
-                <span>Back</span>
-              </button>
+    <header className="w-full bg-white border-b border-slate-200 sticky top-0 z-40">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center">
+        {/* 1. Brand Container — flex-shrink-0, whitespace-nowrap, mr-4 md:mr-6 */}
+        <a
+          href="#workspace"
+          onClick={(e) => {
+            e.preventDefault();
+            handleSelectNav('workspace');
+          }}
+          className="flex items-center gap-2 flex-shrink-0 mr-4 md:mr-6 cursor-pointer select-none group focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded-xl"
+          aria-label="SummaSphere home"
+        >
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center shadow-sm flex-shrink-0">
+            <Globe className="w-5 h-5 text-white" />
+          </div>
+          <span className="text-lg md:text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent whitespace-nowrap">
+            SummaSphere
+          </span>
+        </a>
 
-              {/* Centered Page Title */}
-              <div className="flex-1 text-center min-w-0 px-2">
-                <h1 className="text-sm font-bold text-slate-900 truncate tracking-tight m-0">
-                  {pageTitle}
-                </h1>
-              </div>
-
-              {/* Right Action: Accuracy Check icon button */}
+        {/* 2. Desktop Full Nav (>= 1024px) — All 7 tabs visible, More dropdown hidden */}
+        <nav className="hidden lg:flex items-center gap-1 flex-1 min-w-0 overflow-x-auto scrollbar-hide">
+          {allTabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = currentView === tab.id;
+            return (
               <button
+                key={tab.id}
                 type="button"
-                onClick={() => {
-                  if (onOpenRouge) onOpenRouge();
-                  else setView('accuracy');
-                }}
-                title="Accuracy Check (ROUGE Evaluation)"
-                aria-label="Accuracy Check"
-                className={`inline-flex items-center justify-center p-2 text-xs font-semibold rounded-xl transition-all cursor-pointer shadow-xs active:scale-95 shrink-0 ${
-                  currentView === 'accuracy'
-                    ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-xs font-bold'
-                    : 'text-slate-800 hover:text-indigo-900 bg-white hover:bg-slate-50 border border-slate-200'
+                onClick={() => handleSelectNav(tab.id)}
+                className={`flex items-center gap-2 px-3 xl:px-4 py-2 rounded-lg font-medium text-sm transition-all whitespace-nowrap flex-shrink-0 cursor-pointer ${
+                  isActive
+                    ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-sm font-semibold'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                 }`}
               >
-                <Target className={`w-4 h-4 shrink-0 ${currentView === 'accuracy' ? 'text-white' : 'text-indigo-600'}`} />
+                <Icon size={16} className={`shrink-0 ${isActive ? 'text-white' : 'text-slate-500'}`} />
+                <span>{tab.label}</span>
+                {tab.requiresSummary && hasSummary && (
+                  <span
+                    className={`w-2 h-2 rounded-full shrink-0 ${
+                      isActive ? 'bg-emerald-300 ring-2 ring-indigo-500' : 'bg-emerald-500'
+                    }`}
+                    title="Summary ready"
+                  />
+                )}
               </button>
-            </div>
-          ) : null}
+            );
+          })}
+        </nav>
 
-          {/* ========================================================= */}
-          {/* Standard Left Brand: Logo + SummaSphere                     */}
-          {/* Hidden on mobile sub-pages, visible on mobile workspace and on tablet/desktop */}
-          {/* ========================================================= */}
-          <div
-            className={`${
-              isSubPage ? 'hidden sm:flex' : 'flex'
-            } items-center gap-2 sm:gap-2.5 cursor-pointer select-none min-w-0 shrink group focus-visible:ring-2 focus-visible:ring-indigo-500 rounded-xl focus:outline-none`}
+        {/* 3. Mobile / Tablet Nav (< 1024px) — Summarize + More ▾ dropdown */}
+        <nav className="flex lg:hidden items-center gap-1 flex-1 min-w-0 overflow-x-auto scrollbar-hide">
+          {/* Always visible "Summarize" primary button */}
+          <button
+            type="button"
             onClick={() => handleSelectNav('workspace')}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => e.key === 'Enter' && handleSelectNav('workspace')}
-            aria-label="SummaSphere home"
+            className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg font-medium text-sm transition-all whitespace-nowrap flex-shrink-0 cursor-pointer ${
+              currentView === 'workspace'
+                ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-sm font-semibold'
+                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+            }`}
           >
-            <div className="w-8 sm:w-9 h-8 sm:h-9 rounded-xl overflow-hidden bg-white border border-slate-200 shadow-xs flex items-center justify-center p-0.5 shrink-0 transition-transform group-hover:scale-105">
-              <img
-                src={logoImg}
-                alt="SummaSphere Logo"
-                className="w-full h-full object-contain rounded-lg"
-              />
-            </div>
-            <h1 className="flex items-center m-0 p-0 text-base sm:text-lg lg:text-xl font-bold tracking-tight min-w-0 truncate">
-              <span className="bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-600 bg-clip-text text-transparent truncate">
-                SummaSphere
-              </span>
-            </h1>
-          </div>
+            <Sparkles size={16} className="shrink-0" />
+            <span>Summarize</span>
+          </button>
 
-          {/* 
-            Desktop Navigation Bar:
-            - Mobile (< 640px): hidden
-            - Tablet (640-1023px): hidden
-            - Desktop (>= 1024px): hidden lg:flex
-          */}
-          <nav
-            aria-label="Main Navigation"
-            className="hidden lg:flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80 gap-1 shrink-0"
-          >
+          {/* "More ▾" Dropdown with the 5 secondary tabs */}
+          <div className="relative flex-shrink-0" ref={dropdownRef}>
             <button
               type="button"
-              onClick={() => handleSelectNav(mainItem.id)}
-              className={`relative inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs xl:text-sm rounded-lg font-semibold transition-all duration-150 cursor-pointer focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus:outline-none ${
-                currentView === mainItem.id
-                  ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-xs font-bold'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white'
+              onClick={() => setIsDropdownOpen((prev) => !prev)}
+              aria-expanded={isDropdownOpen}
+              aria-haspopup="true"
+              className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap cursor-pointer ${
+                isMoreActive
+                  ? 'bg-indigo-50 text-indigo-700 font-semibold'
+                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
-              <mainItem.icon className="w-4 h-4 shrink-0" />
-              <span>{mainItem.label}</span>
+              <span>{isMoreActive ? (secondaryItems.find((i) => i.id === currentView)?.label || 'More') : 'More'}</span>
+              <ChevronDown size={16} className={`transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
             </button>
 
-            {secondaryItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = currentView === item.id;
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => handleSelectNav(item.id)}
-                  className={`relative inline-flex items-center gap-1.5 px-3 py-1.5 text-xs xl:text-sm rounded-lg font-semibold transition-all duration-150 whitespace-nowrap cursor-pointer focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus:outline-none ${
-                    isActive
-                      ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-xs font-bold'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-white'
-                  }`}
-                >
-                  <Icon className={`w-3.5 h-3.5 xl:w-4 xl:h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-500'}`} />
-                  <span className="hidden xl:inline">{item.label}</span>
-                  <span className="inline xl:hidden">{item.shortLabel}</span>
-                  {item.requiresSummary && hasSummary && (
-                    <span
-                      className={`w-2 h-2 rounded-full shrink-0 ${
-                        isActive ? 'bg-emerald-300 ring-2 ring-indigo-500' : 'bg-emerald-500'
-                      }`}
-                      title="Summary ready"
-                    />
-                  )}
-                </button>
-              );
-            })}
-          </nav>
-
-          {/* 
-            Tablet Middle Navigation:
-            - Mobile (< 640px): hidden
-            - Tablet (640-1023px): hidden sm:flex lg:hidden
-            - Desktop (>= 1024px): lg:hidden
-          */}
-          <div className="hidden sm:flex lg:hidden items-center gap-1.5 overflow-x-auto no-scrollbar py-1 shrink-0">
-            <button
-              type="button"
-              onClick={() => handleSelectNav(mainItem.id)}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg font-semibold transition-all cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-indigo-500 focus:outline-none ${
-                currentView === mainItem.id
-                  ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-xs font-bold'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-              }`}
-            >
-              <mainItem.icon className="w-3.5 h-3.5 shrink-0" />
-              <span>{mainItem.label}</span>
-            </button>
-
-            {/* "More" Dropdown Menu */}
-            <div className="relative shrink-0" ref={dropdownRef}>
-              <button
-                type="button"
-                onClick={() => setIsDropdownOpen((prev) => !prev)}
-                aria-expanded={isDropdownOpen}
-                aria-haspopup="true"
-                className={`inline-flex items-center gap-1 px-3 py-1.5 text-xs rounded-lg font-semibold transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-indigo-500 focus:outline-none ${
-                  isMoreActive
-                    ? 'bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold'
-                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                }`}
+            {isDropdownOpen && (
+              <div
+                role="menu"
+                className="absolute left-0 mt-1.5 w-52 bg-white border border-slate-200 rounded-xl shadow-lg p-1.5 z-50 animate-in fade-in zoom-in-95 duration-150"
               >
-                <span>{isMoreActive ? secondaryItems.find((i) => i.id === currentView)?.shortLabel || 'More' : 'More'}</span>
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
-              </button>
-
-              {isDropdownOpen && (
-                <div
-                  role="menu"
-                  className="absolute right-0 mt-1.5 w-48 bg-white border border-slate-200 rounded-xl shadow-lg p-1.5 z-50 animate-in fade-in zoom-in-95 duration-150"
-                >
-                  {secondaryItems.map((item) => {
-                    const Icon = item.icon;
-                    const isActive = currentView === item.id;
-                    return (
-                      <button
-                        key={item.id}
-                        type="button"
-                        role="menuitem"
-                        onClick={() => handleSelectNav(item.id)}
-                        className={`w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg font-medium transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-indigo-500 focus:outline-none ${
-                          isActive
-                            ? 'bg-indigo-50 text-indigo-700 font-bold'
-                            : 'text-slate-700 hover:bg-slate-100'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <Icon className={`w-4 h-4 ${isActive ? 'text-indigo-600' : 'text-slate-500'}`} />
-                          <span>{item.label}</span>
-                        </div>
-                        {item.requiresSummary && hasSummary && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+                {secondaryItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = currentView === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      role="menuitem"
+                      onClick={() => handleSelectNav(item.id)}
+                      className={`w-full flex items-center justify-between px-3 py-2 text-sm rounded-lg font-medium transition-all cursor-pointer ${
+                        isActive
+                          ? 'bg-indigo-50 text-indigo-700 font-semibold'
+                          : 'text-slate-700 hover:bg-slate-100'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Icon size={16} className={isActive ? 'text-indigo-600' : 'text-slate-500'} />
+                        <span>{item.label}</span>
+                      </div>
+                      {item.requiresSummary && hasSummary && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
+        </nav>
 
-          {/* 
-            Right Actions (Tablet & Desktop, or Mobile Workspace):
-            - Mobile on sub-page: already handled in sub-page header row above
-            - Tablet & Desktop (>= 640px) or Mobile Workspace: rendered here
-          */}
-          <div className={`${isSubPage ? 'hidden sm:flex' : 'flex'} items-center gap-2 shrink-0`}>
-            <button
-              type="button"
-              onClick={() => {
-                if (onOpenRouge) onOpenRouge();
-                else setView('accuracy');
-              }}
-              title="Accuracy Check (ROUGE Evaluation)"
-              aria-label="Accuracy Check"
-              className={`inline-flex items-center justify-center gap-1.5 p-2 sm:px-3.5 sm:py-2 text-xs sm:text-sm font-semibold rounded-xl transition-all cursor-pointer shadow-xs focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus:outline-none active:scale-95 ${
-                currentView === 'accuracy'
-                  ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-xs font-bold'
-                  : 'text-slate-800 hover:text-indigo-900 bg-white hover:bg-slate-50 border border-slate-200 hover:border-indigo-400'
-              }`}
-            >
-              <Target className={`w-4 h-4 shrink-0 ${currentView === 'accuracy' ? 'text-white' : 'text-indigo-600'}`} />
-              <span className="hidden sm:inline">Accuracy Check</span>
-            </button>
-          </div>
+        {/* 4. Mobile / Tablet Right-Side Action (< 1024px) — Accuracy Check */}
+        <div className="flex lg:hidden items-center gap-2 flex-shrink-0 ml-2 sm:ml-4">
+          <button
+            type="button"
+            onClick={handleAccuracyClick}
+            title="Accuracy Check (ROUGE Evaluation)"
+            aria-label="Accuracy Check"
+            className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg font-medium text-sm transition-all whitespace-nowrap cursor-pointer shadow-xs active:scale-95 ${
+              currentView === 'accuracy'
+                ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-sm font-semibold'
+                : 'text-slate-700 hover:text-indigo-900 bg-white hover:bg-slate-50 border border-slate-200 hover:border-indigo-300'
+            }`}
+          >
+            <Target size={16} className={`shrink-0 ${currentView === 'accuracy' ? 'text-white' : 'text-indigo-600'}`} />
+            <span className="hidden sm:inline">Accuracy Check</span>
+          </button>
         </div>
       </div>
     </header>
