@@ -62,18 +62,19 @@ export default function BottomNavBar({
   return (
     /* 
       Bottom Navigation Container:
-      - Mobile (< 640px): fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-200 flex items-center justify-around h-16 safe-area-inset-bottom
-      - Tablet & Desktop (>= 640px): sm:hidden
+      - Mobile & Tablet (< 1024px, breakpoint: lg:hidden):
+        fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-200
+        flex items-center justify-around h-16 safe-area-inset-bottom
+      - Desktop (>= 1024px): hidden (navigation driven by top navbar)
     */
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-200 flex items-center justify-around h-16 px-1 safe-area-inset-bottom sm:hidden"
+      className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-200 flex items-center justify-around h-16 px-1 safe-area-inset-bottom lg:hidden"
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
       aria-label="Mobile Bottom Navigation"
     >
       {navItems.map((item) => {
         const Icon = item.icon;
         const isActive = currentView === item.id;
-        const isScores = item.id === 'ranking';
 
         return (
           <button
@@ -84,11 +85,9 @@ export default function BottomNavBar({
             aria-label={item.tooltip}
             aria-current={isActive ? 'page' : undefined}
             /* Each nav item: flex flex-col items-center justify-center gap-1 text-xs */
-            className={`flex flex-col items-center justify-center gap-1 text-xs flex-1 py-1 px-1 transition-colors duration-150 cursor-pointer select-none active:scale-95 ${
+            className={`flex flex-col items-center justify-center gap-1 text-xs flex-1 py-1 px-1 transition-colors duration-150 cursor-pointer select-none active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded-lg ${
               isActive
-                ? isScores
-                  ? 'text-purple-600 font-bold'
-                  : 'text-indigo-600 font-bold'
+                ? 'text-indigo-600 font-bold'
                 : 'text-slate-600 hover:text-slate-900 font-medium'
             }`}
           >
@@ -96,9 +95,7 @@ export default function BottomNavBar({
               <Icon
                 className={`w-5 h-5 transition-transform ${
                   isActive
-                    ? isScores
-                      ? 'scale-110 text-purple-600 stroke-[2.4]'
-                      : 'scale-110 text-indigo-600 stroke-[2.4]'
+                    ? 'scale-110 text-indigo-600 stroke-[2.4]'
                     : 'text-slate-500 stroke-[1.8]'
                 }`}
               />
@@ -115,9 +112,7 @@ export default function BottomNavBar({
             <span
               className={`text-[10px] sm:text-xs leading-none tracking-tight ${
                 isActive
-                  ? isScores
-                    ? 'text-purple-700 font-bold'
-                    : 'text-indigo-700 font-bold'
+                  ? 'text-indigo-700 font-bold'
                   : 'text-slate-600 font-medium'
               }`}
             >

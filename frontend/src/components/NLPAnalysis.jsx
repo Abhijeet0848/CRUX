@@ -166,7 +166,7 @@ export default function NLPAnalysis({
   const detectedLang = prepMeta.language || summaryData.detected_language || (/[\u0900-\u097F]/.test(originalText || '') ? 'hi' : 'en');
 
   return (
-    <div className="p-3 sm:p-4 lg:p-6 pb-24 sm:pb-8 lg:pb-6 space-y-5 animate-in fade-in duration-200">
+    <div className="p-3 sm:p-4 lg:p-6 pb-24 lg:pb-6 space-y-5 animate-in fade-in duration-200">
       {/* Header Banner */}
       <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>

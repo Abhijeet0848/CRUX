@@ -8,11 +8,9 @@ import SummaryCard from './SummaryCard';
  *
  * Core layout container for the Summarizer Studio:
  * Breakpoint strategy:
- * - Mobile (< 640px): flex flex-col gap-4 p-3 pb-24 w-full min-w-0
+ * - Mobile & Tablet (< 1024px): flex flex-col gap-4 p-3 sm:p-4 pb-24 w-full min-w-0
  *   Reserves bottom clearance (pb-24) so content is never covered by the fixed bottom navigation bar.
- * - Tablet (640px - 1023px): flex flex-col gap-4 sm:p-4 sm:pb-8 w-full min-w-0
- *   Smooth natural page scroll without bottom nav obstruction.
- * - Desktop (>= 1024px): lg:grid lg:grid-cols-2 lg:gap-6 lg:p-6 lg:pb-0 lg:min-h-0 lg:overflow-hidden
+ * - Desktop (>= 1024px): lg:grid lg:grid-cols-2 lg:gap-5 lg:p-4 xl:p-5 lg:min-h-0 lg:overflow-hidden
  *   Maintains strict two-column viewport-locked experience without window-level scrollbars.
  */
 export default function MainLayout({
@@ -32,7 +30,7 @@ export default function MainLayout({
 }) {
   return (
     <div
-      className="w-full max-w-full min-w-0 flex flex-col gap-4 p-3 pb-24 sm:p-4 sm:pb-8 lg:grid lg:grid-cols-2 lg:gap-5 lg:p-4 xl:p-5 lg:min-h-0 lg:overflow-hidden lg:flex-1 items-stretch"
+      className="w-full max-w-full min-w-0 flex flex-col gap-4 p-3 sm:p-4 pb-24 lg:grid lg:grid-cols-2 lg:gap-5 lg:p-4 xl:p-5 lg:min-h-0 lg:overflow-hidden lg:flex-1 items-stretch"
     >
       {/* Left Column: Input Card & Controls */}
       <div className="w-full min-w-0 lg:h-full lg:min-h-0 lg:overflow-hidden">

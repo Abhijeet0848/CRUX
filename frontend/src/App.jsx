@@ -17,21 +17,17 @@ import { summarizeText, compareAlgorithms } from './services/api';
  *
  * Root container for SummaSphere application:
  * Breakpoint strategy:
- * - Mobile (< 640px):
+ * - Mobile & Tablet (< 1024px):
  *   - Root: w-full max-w-full min-h-screen (natural page scroll, no fixed height)
- *   - Header: compact h-14 with logo + title, desktop tabs hidden, icon-only Accuracy Check
+ *   - Header: compact h-14 with logo + title (or sub-page header with Back + title),
+ *     desktop tabs hidden, icon-only Accuracy Check
  *   - Main layout: single column stacked, pb-24 reserving clearance for BottomNav
- *   - Bottom navigation: fixed at bottom (h-16), 5 navigation items
- * - Tablet (640px - 1023px):
- *   - Root: w-full max-w-full min-h-screen (smooth natural page scroll)
- *   - Header: h-16, top navigation visible with "More" dropdown
- *   - Main layout: single column stacked, natural scroll, sm:pb-8
- *   - Bottom navigation: hidden (sm:hidden)
+ *   - Bottom navigation: fixed at bottom (h-16), 5 navigation items driving routing
  * - Desktop (>= 1024px):
  *   - Root: lg:h-screen lg:overflow-hidden (strict viewport-locked layout, no page scroll)
- *   - Header: lg:h-16 with full segmented navigation bar
- *   - Main layout: lg:grid lg:grid-cols-2 lg:gap-6 lg:p-6 lg:min-h-0 lg:overflow-hidden
- *   - Bottom navigation: hidden
+ *   - Header: lg:h-16 with full segmented navigation bar (all 7 tabs)
+ *   - Main layout: lg:grid lg:grid-cols-2 lg:gap-5 lg:p-4 xl:p-5 lg:min-h-0 lg:overflow-hidden
+ *   - Bottom navigation: hidden (lg:hidden)
  */
 export default function App() {
   const [currentView, setCurrentView] = useState('workspace'); // 'workspace' | 'nlp_analysis' | 'ranking' | 'analytics' | 'compare' | 'history' | 'accuracy'
@@ -179,7 +175,7 @@ export default function App() {
 
             {/* Mobile & Tablet Additional Metrics (< 1024px) */}
             {summaryData && (
-              <div className="lg:hidden space-y-4 animate-fade-up px-3 sm:px-4 mt-2 pb-24 sm:pb-8">
+              <div className="lg:hidden space-y-4 animate-fade-up px-3 sm:px-4 mt-2 pb-24">
                 <StatsGrid stats={summaryData} />
 
                 {/* Quick Navigation Cards */}

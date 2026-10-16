@@ -30,7 +30,7 @@ export default function CompareMethodsPage({
   }
 
   return (
-    <div className="p-3 sm:p-4 lg:p-6 pb-24 sm:pb-8 lg:pb-6 space-y-5 animate-in fade-in duration-150">
+    <div className="p-3 sm:p-4 lg:p-6 pb-24 lg:pb-6 space-y-5 animate-in fade-in duration-150">
       <ComparisonSection
         sourceText={sourceText}
         compareData={compareData}

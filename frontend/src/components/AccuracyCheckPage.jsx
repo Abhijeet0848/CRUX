@@ -98,7 +98,7 @@ export default function AccuracyCheckPage({
   }
 
   return (
-    <div className="p-3 sm:p-4 lg:p-6 pb-24 sm:pb-8 lg:pb-6 space-y-5 max-w-4xl mx-auto w-full animate-in fade-in duration-150">
+    <div className="p-3 sm:p-4 lg:p-6 pb-24 lg:pb-6 space-y-5 max-w-4xl mx-auto w-full animate-in fade-in duration-150">
       <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200">
           <div>
