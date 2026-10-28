@@ -186,12 +186,12 @@ export default function SummaryCard({
               )}
             </div>
           ) : (
-            /* Summary Sentences (verbatim extractive output) */
+            /* Summary Sentences (verbatim extractive output with whitespace-pre-wrap) */
             <div className="space-y-3">
               {sentenceLines.map((sentence, index) => (
                 <p
                   key={index}
-                  className="text-slate-900 font-normal leading-relaxed text-sm sm:text-base break-words"
+                  className="text-slate-900 font-normal leading-relaxed text-sm sm:text-base break-words whitespace-pre-wrap"
                 >
                   {sentence}
                 </p>

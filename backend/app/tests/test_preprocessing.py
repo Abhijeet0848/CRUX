@@ -20,7 +20,7 @@ class TestPreprocessing(unittest.TestCase):
         self.assertEqual(Preprocessor.clean_text(""), "")
         self.assertEqual(Preprocessor.clean_text(None), "")
         raw = "   Multiple   \n\n\t spaces and \r\n line breaks.   "
-        self.assertEqual(Preprocessor.clean_text(raw), "Multiple spaces and line breaks.")
+        self.assertEqual(Preprocessor.clean_text(raw, preserve_newlines=False), "Multiple spaces and line breaks.")
 
     def test_segment_sentences(self):
         text = "This is sentence one. Sentence two is here! Is this sentence three? Yes, it is."
@@ -30,6 +30,22 @@ class TestPreprocessing(unittest.TestCase):
         self.assertEqual(sentences[1], "Sentence two is here!")
         self.assertEqual(sentences[2], "Is this sentence three?")
         self.assertEqual(sentences[3], "Yes, it is.")
+
+    def test_segment_sentences_with_newlines_and_bullets(self):
+        text = "Introductory text.\n- First bullet point\n- Second bullet point\nConcluding sentence."
+        sentences = Preprocessor.segment_sentences(text)
+        self.assertEqual(len(sentences), 4)
+        self.assertEqual(sentences[0], "Introductory text.")
+        self.assertEqual(sentences[1], "- First bullet point")
+        self.assertEqual(sentences[2], "- Second bullet point")
+        self.assertEqual(sentences[3], "Concluding sentence.")
+
+    def test_segment_sentences_with_hanging_colon(self):
+        text = "Key Advantage:\nZero Hallucination Guarantee\nLow Compute Footprint: Runs fast."
+        sentences = Preprocessor.segment_sentences(text)
+        self.assertEqual(len(sentences), 2)
+        self.assertEqual(sentences[0], "Key Advantage: Zero Hallucination Guarantee")
+        self.assertEqual(sentences[1], "Low Compute Footprint: Runs fast.")
 
     def test_tokenize_and_normalize(self):
         text = "The artificial intelligence algorithms are running quickly and analyzing documents."

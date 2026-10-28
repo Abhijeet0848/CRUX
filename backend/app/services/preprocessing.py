@@ -92,13 +92,14 @@ class Preprocessor:
         return "en"
 
     @staticmethod
-    def clean_text(raw_text: str) -> str:
+    def clean_text(raw_text: str, preserve_newlines: bool = True) -> str:
         r"""
         Step 1: Text Cleaning & Sanitization
         - Decodes HTML entities
         - Strips HTML/XML tags
         - Converts rich Markdown links [anchor](url) -> anchor
         - Strips citation URLs, standalone links, and reference brackets (e.g., [50], [\[50\]](http...), [6][51])
+        - Preserves newline boundaries when preserve_newlines=True to allow list & sentence segmentation
         - Normalizes irregular whitespace and special unicode characters
         """
         if not raw_text or not isinstance(raw_text, str):
@@ -124,36 +125,101 @@ class Preprocessor:
         # 5. Clean stray escaped characters
         text = re.sub(r'\\([\[\]\(\)])', r'\1', text)
         
-        # 6. Standardize carriage returns and whitespace
-        text = re.sub(r'\s+', ' ', text)
-        # 7. Normalize whitespace immediately before punctuation marks
-        text = re.sub(r'\s+([,.!?;:।॥])', r'\1', text)
+        if preserve_newlines:
+            # Standardize carriage returns
+            text = text.replace('\r\n', '\n').replace('\r', '\n')
+            # Normalize horizontal spaces on lines
+            text = re.sub(r'[^\S\n]+', ' ', text)
+            # Remove trailing/leading spaces on lines
+            text = re.sub(r' ?\n ?', '\n', text)
+            # Collapse excessive blank lines
+            text = re.sub(r'\n{3,}', '\n\n', text)
+            # Normalize whitespace immediately before punctuation marks
+            text = re.sub(r'[^\S\n]+([,.!?;:।॥])', r'\1', text)
+        else:
+            # Standardize all carriage returns and whitespace to single space
+            text = re.sub(r'\s+', ' ', text)
+            text = re.sub(r'\s+([,.!?;:।॥])', r'\1', text)
+
         return text.strip()
 
-    @staticmethod
-    def segment_sentences(cleaned_text: str) -> List[str]:
+    @classmethod
+    def segment_sentences(cls, cleaned_text: str) -> List[str]:
         """
         Step 2: Sentence Boundary Segmentation (Multilingual: English . ! ? and Hindi । ॥ |)
         - Handles sentence terminals (. ! ? । ॥ |) followed by closing quotes, parentheses, brackets
+        - Treats newlines as sentence boundaries for unpunctuated lines & bullet lists
+        - Detects hanging headings/labels ending with colon (e.g., 'Key Advantage:') and
+          safely merges them with the subsequent line
+        - Preserves colon-separated phrases on the same line (e.g., 'Key Advantage: Zero Hallucination') without splitting
         - Accurately segments both standard paragraphs and newline-separated texts without dropping unpunctuated lines
         """
         if not cleaned_text:
             return []
         
-        # Normalize ASCII pipe used as Hindi danda
+        # 1. Normalize ASCII pipe used as Hindi danda
         normalized = re.sub(r'\s*\|\s*', '। ', cleaned_text)
+        normalized = normalized.replace('\r\n', '\n').replace('\r', '\n')
         
-        # Pattern captures sentence body and its terminal punctuation (. ! ? । ॥)
-        pattern = r'([^.!?।॥]+(?:[.!?।॥]+["\'”’\)\]]*|$))'
-        raw_sentences = re.findall(pattern, normalized)
+        # 2. Split into raw lines to preserve line/bullet structure
+        raw_lines = [line.strip() for line in normalized.split('\n')]
         
-        sentences = []
-        for s in raw_sentences:
-            cleaned_s = s.strip()
-            if cleaned_s:
-                sentences.append(cleaned_s)
+        # 3. Merge hanging lines that end with a colon ':' into the subsequent line
+        merged_lines: List[str] = []
+        i = 0
+        while i < len(raw_lines):
+            line = raw_lines[i]
+            if not line:
+                i += 1
+                continue
+            
+            # Check if line ends with a colon (e.g. "Key Advantage:" or "Features:")
+            # and there is a subsequent non-empty line
+            if (line.endswith(':') or line.endswith(':-')) and i + 1 < len(raw_lines):
+                next_idx = i + 1
+                while next_idx < len(raw_lines) and not raw_lines[next_idx]:
+                    next_idx += 1
                 
-        # If no split occurred but text has semicolons, fallback
+                if next_idx < len(raw_lines):
+                    next_line = raw_lines[next_idx]
+                    merged_line = f"{line} {next_line}"
+                    merged_lines.append(merged_line)
+                    i = next_idx + 1
+                    continue
+                else:
+                    merged_lines.append(line)
+                    i += 1
+                    continue
+            else:
+                merged_lines.append(line)
+                i += 1
+
+        # 4. For each line, segment on terminal punctuation (. ! ? । ॥)
+        # Regex captures sentences with terminal punctuation: (. ! ? । ॥)
+        # and also trailing unpunctuated text at the end of the line.
+        term_pattern = r'([^.!?।॥]+(?:[.!?।॥]+["\'”’\)\]]*|$))'
+        
+        sentences: List[str] = []
+        for line in merged_lines:
+            line_str = line.strip()
+            if not line_str:
+                continue
+
+            # Check if this line contains any sentence terminal (. ! ? । ॥)
+            has_terminals = bool(re.search(r'[.!?।॥]', line_str))
+            if has_terminals:
+                parts = re.findall(term_pattern, line_str)
+                for p in parts:
+                    clean_p = p.strip()
+                    # Filter out stray single punctuation marks or bullets alone
+                    if clean_p and not re.fullmatch(r'^[.,!?;:।॥\-*•–—\s]+$', clean_p):
+                        sentences.append(clean_p)
+            else:
+                # Line without terminal punctuation (e.g. unpunctuated bullet point or title line)
+                if not re.fullmatch(r'^[.,!?;:।॥\-*•–—\s]+$', line_str):
+                    sentences.append(line_str)
+
+        # 5. Fallback: If no split occurred but text has semicolons, fallback
         if len(sentences) <= 1 and ';' in cleaned_text:
             semi_splits = [s.strip() for s in cleaned_text.split(';') if s.strip()]
             if len(semi_splits) > 1:

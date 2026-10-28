@@ -54,12 +54,41 @@ export default function InputCard({
     .replace(/\s*\|\s*/g, '। ')
     .trim();
 
-  const wordCount = cleanClientText ? cleanClientText.split(/\s+/).filter(Boolean).length : 0;
-  const charCount = text.length;
-  const sentenceList = cleanClientText
-    ? (cleanClientText.match(/[^.!?।॥\n]+(?:[.!?।॥]+["'”’\)\]]*|$)/g) || []).filter((s) => s.trim().length > 0)
+  // Accurate word count: filters out standalone bullet symbols (-, *, •, –, —)
+  const wordTokens = cleanClientText
+    ? cleanClientText.split(/\s+/).filter((w) => /[a-zA-Z0-9\u0900-\u097F]/.test(w))
     : [];
-  const sentenceCount = sentenceList.length;
+  const wordCount = wordTokens.length;
+  const charCount = text.length;
+
+  // Sentence count: handles punctuated sentences, newlines, and bullet points
+  const rawLines = cleanClientText ? cleanClientText.split('\n').map((l) => l.trim()).filter(Boolean) : [];
+  let mergedClientLines = [];
+  for (let i = 0; i < rawLines.length; i++) {
+    const l = rawLines[i];
+    if ((l.endsWith(':') || l.endsWith(':-')) && i + 1 < rawLines.length) {
+      mergedClientLines.push(`${l} ${rawLines[i + 1]}`);
+      i++;
+    } else {
+      mergedClientLines.push(l);
+    }
+  }
+
+  let clientSentences = [];
+  for (const line of mergedClientLines) {
+    if (/[.!?।॥]/.test(line)) {
+      const parts = line.match(/[^.!?।॥]+(?:[.!?।॥]+["'”’\)\]]*|$)/g) || [];
+      for (const p of parts) {
+        const trimmed = p.trim();
+        if (trimmed && /[a-zA-Z0-9\u0900-\u097F]/.test(trimmed)) {
+          clientSentences.push(trimmed);
+        }
+      }
+    } else if (/[a-zA-Z0-9\u0900-\u097F]/.test(line)) {
+      clientSentences.push(line);
+    }
+  }
+  const sentenceCount = clientSentences.length;
 
   // Live compression estimate
   const compressionEstimate = sentenceCount > 0
