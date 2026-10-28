@@ -48,9 +48,12 @@ export default function App() {
 
   const [isRougeOpen, setIsRougeOpen] = useState(false);
 
-  // Clear stale errors when navigating between tabs
+  // Clear stale errors & smoothly scroll to top when navigating between tabs
   useEffect(() => {
     setError('');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const mainEl = document.querySelector('main');
+    if (mainEl) mainEl.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentView]);
 
   const handleSummarize = async () => {
