@@ -23,8 +23,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Intelligent Extractive Text Summarization System",
-    description="MCA NLP Project: 3-Tier Extractive Summarization Engine (Frequency, TF-IDF, Hybrid)",
+    title="Crux — Intelligent Extractive Text Summarization System",
+    description="3-Tier Extractive Summarization Engine (Frequency, TF-IDF, Hybrid)",
     version="1.0.0",
     lifespan=lifespan
 )

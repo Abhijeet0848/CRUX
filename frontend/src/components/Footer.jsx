@@ -12,7 +12,7 @@ export default function Footer({ className = '' }) {
     <footer
       className={`hidden lg:block flex-shrink-0 border-t border-slate-200/80 bg-white py-2 px-4 sm:px-6 text-center lg:text-left text-[11px] text-slate-400 font-medium ${className}`}
     >
-      <p>SummaSphere v1.0.0 · Intelligent Extractive Text Summarization System</p>
+      <p>Crux v1.0.0 · Intelligent Extractive Text Summarization System</p>
     </footer>
   );
 }

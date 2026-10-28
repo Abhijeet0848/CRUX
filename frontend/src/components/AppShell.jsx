@@ -21,7 +21,7 @@ export default function AppShell({
   hasSummary,
 }) {
   return (
-    <div className="min-h-screen h-screen max-h-screen w-full flex flex-col bg-slate-50 text-slate-900 font-sans overflow-hidden">
+    <div className="font-sans antialiased text-gray-900 min-h-screen h-screen max-h-screen w-full flex flex-col bg-slate-50 overflow-hidden">
       {/* Responsive Header: Minimal on < 1024px (h-14), Full on >= 1024px (h-16) */}
       <Header
         currentView={currentView}

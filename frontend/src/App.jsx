@@ -15,7 +15,7 @@ import { summarizeText, compareAlgorithms } from './services/api';
 /**
  * App Shell
  *
- * Root container for SummaSphere application:
+ * Root container for Crux application:
  * Breakpoint strategy:
  * - Mobile & Tablet (< 1024px):
  *   - Root: w-full max-w-full min-h-screen (natural page scroll, no fixed height)
