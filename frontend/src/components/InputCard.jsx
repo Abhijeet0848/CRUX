@@ -209,7 +209,7 @@ export default function InputCard({
 
   return (
     /* 1. Left Card: Spacious container commanding the left view */
-    <div className="flex flex-col w-full bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 sm:p-6 lg:h-full lg:min-h-0 lg:overflow-y-auto">
+    <div className="flex flex-col w-full flex-none bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 sm:p-6 lg:flex-1 lg:h-full lg:min-h-0 lg:overflow-y-auto">
       {/* 5. Card Header (Unified SaaS Header) */}
       <div className="flex-shrink-0 min-w-0 mb-4">
         <div className="flex items-center justify-between gap-3 min-w-0 mb-3">

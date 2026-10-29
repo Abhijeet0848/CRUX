@@ -70,7 +70,7 @@ export default function SummaryCard({
 
   return (
     /* SummaryCard Container */
-    <div className="w-full min-w-0 flex flex-col bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 sm:p-6 lg:h-full lg:min-h-0 lg:overflow-hidden transition-shadow">
+    <div className="w-full min-w-0 flex flex-col flex-none bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 sm:p-6 lg:flex-1 lg:h-full lg:min-h-0 lg:overflow-hidden transition-shadow">
       {/* 5. Card Header (Unified SaaS Header) */}
       <div className="flex-shrink-0 min-w-0 flex items-center justify-between gap-2 sm:gap-3 pb-3 border-b border-slate-100 mb-3 sm:mb-4">
         {/* Title block */}
