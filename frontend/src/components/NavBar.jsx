@@ -230,10 +230,10 @@ export default function Navbar({
                 onClick={handleAccuracyClick}
                 aria-label="Accuracy Check"
                 title="Accuracy Check (ROUGE Evaluation)"
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-300 ease-in-out cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 active:scale-95"
+                className="flex items-center gap-1.5 px-2 sm:px-4 py-1.5 text-xs font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-300 ease-in-out cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 active:scale-95"
               >
                 <Target size={14} className="shrink-0 text-gray-500" />
-                <span>Accuracy</span>
+                <span className="hidden sm:inline">Accuracy Check</span>
               </button>
 
               {/* Mobile Hamburger Menu Toggle */}

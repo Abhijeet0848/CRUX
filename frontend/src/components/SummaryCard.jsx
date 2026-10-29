@@ -70,7 +70,7 @@ export default function SummaryCard({
 
   return (
     /* SummaryCard Container */
-    <div className="w-full min-w-0 flex flex-col bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 sm:p-5 lg:p-6 lg:h-full lg:min-h-0 lg:overflow-hidden transition-shadow">
+    <div className="w-full min-w-0 flex flex-col bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 sm:p-6 lg:h-full lg:min-h-0 lg:overflow-hidden transition-shadow">
       {/* 5. Card Header (Unified SaaS Header) */}
       <div className="flex-shrink-0 min-w-0 flex items-center justify-between gap-2 sm:gap-3 pb-3 border-b border-slate-100 mb-3 sm:mb-4">
         {/* Title block */}
@@ -93,7 +93,11 @@ export default function SummaryCard({
             </div>
             <p className="text-sm text-slate-500 font-normal truncate">
               {summary && !loading
-                ? `${summaryWordCount} words · ${compressionPercent}% shorter · ${sentenceLines.length} ${sentenceLines.length === 1 ? 'sentence' : 'sentences'}`
+                ? `${summaryWordCount} words · ${compressionPercent > 0
+                  ? `${compressionPercent}% shorter`
+                  : 'Full text extracted'
+                } · ${sentenceLines.length} ${sentenceLines.length === 1 ? 'sentence' : 'sentences'
+                }`
                 : 'Extracted salient sentences'}
             </p>
           </div>
@@ -107,11 +111,10 @@ export default function SummaryCard({
               onClick={handleCopy}
               aria-label="Copy summary to clipboard"
               title={copied ? 'Copied to clipboard!' : 'Copy summary'}
-              className={`flex-shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 p-2 sm:px-3 sm:py-1.5 rounded-lg text-xs font-semibold transition-all duration-150 cursor-pointer shadow-2xs active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus:outline-none ${
-                copied
+              className={`flex-shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 p-2 sm:px-3 sm:py-1.5 rounded-lg text-xs font-semibold transition-all duration-150 cursor-pointer shadow-2xs active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus:outline-none ${copied
                   ? 'bg-emerald-600 text-white border border-emerald-600'
                   : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-300'
-              }`}
+                }`}
             >
               {copied ? <Check className="w-3.5 h-3.5 flex-shrink-0" /> : <Copy className="w-3.5 h-3.5 flex-shrink-0" />}
               <span className="hidden sm:inline">{copied ? 'Copied!' : 'Copy'}</span>

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useMemo, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
   FileText,
@@ -44,55 +44,94 @@ export default function InputCard({
   const [fileError, setFileError] = useState('');
 
   // Clean text calculation for accurate counts
-  const cleanClientText = text
-    .replace(/\[(?:\\\[|\[)?\s*\d+\s*(?:\\\]|\])?\]\([^)]+\)/g, '')
-    .replace(/\[([^\[\]]+)\]\((?:\\\(|\\\)|[^)])+\)/g, '$1')
-    .replace(/https?:\/\/\S+/g, '')
-    .replace(/(?:\\\[|\[)\s*\d+\s*(?:\\\]|\])/g, '')
-    .replace(/\[\s*(?:edit|citation needed|[a-zA-Z\s]+)\s*\]/g, '')
-    .replace(/\\([\[\]\(\)])/g, '$1')
-    .replace(/\s*\|\s*/g, '। ')
-    .trim();
+  const cleanClientText = useMemo(() => {
+    return text
+      .replace(/\[(?:\\\[|\[)?\s*\d+\s*(?:\\\]|\])?\]\([^)]+\)/g, '')
+      .replace(/\[([^\[\]]+)\]\((?:\\\(|\\\)|[^)])+\)/g, '$1')
+      .replace(/https?:\/\/\S+/g, '')
+      .replace(/(?:\\\[|\[)\s*\d+\s*(?:\\\]|\])/g, '')
+      .replace(/\[\s*(?:edit|citation needed|[a-zA-Z\s]+)\s*\]/g, '')
+      .replace(/\\([\[\]\(\)])/g, '$1')
+      .replace(/\s*\|\s*/g, '। ')
+      .trim();
+  }, [text]);
 
   // Accurate word count: filters out standalone bullet symbols (-, *, •, –, —)
-  const wordTokens = cleanClientText
-    ? cleanClientText.split(/\s+/).filter((w) => /[a-zA-Z0-9\u0900-\u097F]/.test(w))
-    : [];
+  const wordTokens = useMemo(() => {
+    return cleanClientText
+      ? cleanClientText.split(/\s+/).filter((w) => /[a-zA-Z0-9\u0900-\u097F]/.test(w))
+      : [];
+  }, [cleanClientText]);
   const wordCount = wordTokens.length;
   const charCount = text.length;
 
-  // Sentence count: handles punctuated sentences, newlines, and bullet points
-  const rawLines = cleanClientText ? cleanClientText.split('\n').map((l) => l.trim()).filter(Boolean) : [];
-  let mergedClientLines = [];
-  for (let i = 0; i < rawLines.length; i++) {
-    const l = rawLines[i];
-    if ((l.endsWith(':') || l.endsWith(':-')) && i + 1 < rawLines.length) {
-      mergedClientLines.push(`${l} ${rawLines[i + 1]}`);
-      i++;
-    } else {
-      mergedClientLines.push(l);
-    }
-  }
+  // Dynamic sentence counting via useMemo: handles punctuated sentences, newlines, and bullet points
+  const sentenceCount = useMemo(() => {
+    if (!cleanClientText) return 0;
 
-  let clientSentences = [];
-  for (const line of mergedClientLines) {
-    if (/[.!?।॥]/.test(line)) {
-      const parts = line.match(/[^.!?।॥]+(?:[.!?।॥]+["'”’\)\]]*|$)/g) || [];
-      for (const p of parts) {
-        const trimmed = p.trim();
-        if (trimmed && /[a-zA-Z0-9\u0900-\u097F]/.test(trimmed)) {
-          clientSentences.push(trimmed);
+    const rawLines = cleanClientText.split('\n').map((l) => l.trim()).filter(Boolean);
+    let mergedClientLines = [];
+    for (let i = 0; i < rawLines.length; i++) {
+      const l = rawLines[i];
+      if ((l.endsWith(':') || l.endsWith(':-')) && i + 1 < rawLines.length) {
+        mergedClientLines.push(`${l} ${rawLines[i + 1]}`);
+        i++;
+      } else {
+        mergedClientLines.push(l);
+      }
+    }
+
+    let clientSentences = [];
+    for (const line of mergedClientLines) {
+      if (/[.!?।॥]/.test(line)) {
+        const parts = line.match(/[^.!?।॥]+(?:[.!?।॥]+["'”’\)\]]*|$)/g) || [];
+        for (const p of parts) {
+          const trimmed = p.trim();
+          if (trimmed && /[a-zA-Z0-9\u0900-\u097F]/.test(trimmed)) {
+            clientSentences.push(trimmed);
+          }
+        }
+      } else if (/[a-zA-Z0-9\u0900-\u097F]/.test(line)) {
+        clientSentences.push(line);
+      }
+    }
+    return clientSentences.length;
+  }, [cleanClientText]);
+
+  // Dynamic slider range bound to actual sentence count
+  const maxSliderValue = sentenceCount > 0 ? sentenceCount : 5;
+  const currentSliderVal = sentenceCount > 0 ? Math.min(numSentences, maxSliderValue) : numSentences;
+
+  // Auto-clamp requested summary length if input has fewer sentences than previous slider value
+  useEffect(() => {
+    if (sentenceCount > 0 && numSentences > sentenceCount) {
+      setNumSentences(sentenceCount);
+    } else if (sentenceCount > 0 && numSentences < 1) {
+      setNumSentences(1);
+    }
+  }, [sentenceCount, numSentences, setNumSentences]);
+
+  // Auto-expand textarea on mobile screens to eliminate inner scrollbars
+  useEffect(() => {
+    const handleResize = () => {
+      if (textareaRef.current) {
+        if (window.innerWidth < 1024) {
+          textareaRef.current.style.height = 'auto';
+          textareaRef.current.style.height = `${Math.max(200, textareaRef.current.scrollHeight)}px`;
+        } else {
+          textareaRef.current.style.height = '';
         }
       }
-    } else if (/[a-zA-Z0-9\u0900-\u097F]/.test(line)) {
-      clientSentences.push(line);
-    }
-  }
-  const sentenceCount = clientSentences.length;
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [text]);
 
   // Live compression estimate
   const compressionEstimate = sentenceCount > 0
-    ? Math.min(100, Math.round((numSentences / sentenceCount) * 100))
+    ? Math.min(100, Math.round((currentSliderVal / sentenceCount) * 100))
     : null;
 
   // Language check (Devanagari vs. Latin script)
@@ -170,7 +209,7 @@ export default function InputCard({
 
   return (
     /* 1. Left Card: Spacious container commanding the left view */
-    <div className="flex flex-col h-full min-h-0 bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-y-auto p-4 sm:p-5 lg:p-6">
+    <div className="flex flex-col w-full bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 sm:p-6 lg:h-full lg:min-h-0 lg:overflow-y-auto">
       {/* 5. Card Header (Unified SaaS Header) */}
       <div className="flex-shrink-0 min-w-0 mb-4">
         <div className="flex items-center justify-between gap-3 min-w-0 mb-3">
@@ -293,12 +332,11 @@ export default function InputCard({
 
       {/* 
         1. Left Card - Textarea (CRITICAL):
-        Textarea wrapper commands space with `flex-1 min-h-[250px] flex flex-col mb-4`.
-        Textarea stretches with `w-full h-full resize-none bg-slate-50/50 border border-slate-200 rounded-xl p-4 text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow`.
-        Placeholder is softer (`placeholder:text-slate-400`).
+        Textarea wrapper expands naturally on mobile and commands space with `lg:flex-1`.
+        Textarea auto-expands on mobile with `overflow-hidden min-h-[200px]`, eliminating inner scrollbars.
       */}
       <div
-        className="flex-1 min-h-[250px] flex flex-col mb-4 relative"
+        className="w-full min-h-[200px] flex flex-col mb-4 relative lg:flex-1"
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleDrop}
       >
@@ -307,13 +345,17 @@ export default function InputCard({
           value={text}
           onChange={(e) => {
             setText(e.target.value);
+            if (window.innerWidth < 1024) {
+              e.target.style.height = 'auto';
+              e.target.style.height = `${Math.max(200, e.target.scrollHeight)}px`;
+            }
             if (docMeta) setDocMeta(null);
             if (fileError) setFileError('');
           }}
           onKeyDown={handleKeyDown}
           placeholder="Paste or type your English or Hindi article here, or drag & drop a .TXT / .MD / .PDF file..."
           disabled={extracting}
-          className="w-full h-full resize-none bg-slate-50/50 border border-slate-200 rounded-xl p-4 text-slate-700 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow outline-none text-sm leading-relaxed overflow-y-auto disabled:opacity-50"
+          className="w-full min-h-[200px] resize-none overflow-hidden lg:overflow-y-auto lg:h-full bg-slate-50/50 border border-slate-200 rounded-xl p-4 text-slate-700 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow outline-none text-sm leading-relaxed disabled:opacity-50"
         />
 
         {extracting && (
@@ -392,17 +434,17 @@ export default function InputCard({
             </div>
           )}
 
-          {/* Summary Length Budget Slider (flows naturally without nested bordered box) */}
+          {/* Summary Length Budget Slider (dynamically bounded to input sentences) */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between text-xs font-semibold text-slate-800 mb-1">
               <span className="text-slate-900 font-bold">Summary Length</span>
               <div className="flex items-center gap-1.5 text-xs">
                 <span className="font-bold text-indigo-600">
-                  {numSentences} {numSentences === 1 ? 'sentence' : 'sentences'}
+                  {currentSliderVal} {currentSliderVal === 1 ? 'sentence' : 'sentences'}
                 </span>
-                {compressionEstimate !== null && (
+                {sentenceCount > 0 && compressionEstimate !== null && (
                   <span className="text-slate-500 font-normal">
-                    · ~{compressionEstimate}% of original
+                    ({compressionEstimate}% of original)
                   </span>
                 )}
               </div>
@@ -411,19 +453,31 @@ export default function InputCard({
             <input
               type="range"
               min="1"
-              max={Math.max(5, Math.min(10, sentenceCount || 10))}
-              value={numSentences}
+              max={maxSliderValue}
+              step="1"
+              value={currentSliderVal}
+              disabled={sentenceCount <= 1}
               onChange={(e) => setNumSentences(Number(e.target.value))}
-              className="w-full accent-indigo-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg appearance-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus:outline-none my-1"
+              className={`w-full accent-indigo-600 h-1.5 bg-slate-200 rounded-lg appearance-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus:outline-none my-1 ${
+                sentenceCount <= 1 ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'
+              }`}
               aria-label="Summary length in sentences"
             />
 
             <div className="flex justify-between text-[11px] text-slate-500 font-medium px-0.5">
               <span>1 sentence</span>
-              {sentenceCount > 1 && (
-                <span>{Math.max(1, Math.floor(sentenceCount / 2))} sentences (50%)</span>
+              {maxSliderValue >= 3 && (
+                <span>
+                  {Math.round(maxSliderValue / 2)}{' '}
+                  {Math.round(maxSliderValue / 2) === 1 ? 'sentence' : 'sentences'} (
+                  {Math.round((Math.round(maxSliderValue / 2) / maxSliderValue) * 100)}%)
+                </span>
               )}
-              <span>{Math.max(5, Math.min(10, sentenceCount || 10))} sentences</span>
+              {maxSliderValue > 1 && (
+                <span>
+                  {maxSliderValue} {maxSliderValue === 1 ? 'sentence' : 'sentences'}
+                </span>
+              )}
             </div>
           </div>
         </div>

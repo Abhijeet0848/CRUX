@@ -28,10 +28,10 @@ export default function MainLayout({
 }) {
   return (
     <div
-      className="w-full h-full min-h-0 flex-1 overflow-hidden flex flex-col gap-4 p-3 sm:p-4 pb-24 lg:pb-4 lg:grid lg:grid-cols-2 lg:gap-5 lg:p-4 xl:p-5 lg:h-[calc(100vh-100px)] items-stretch"
+      className="w-full min-h-0 flex-1 flex flex-col gap-4 p-4 sm:p-6 pb-28 sm:pb-32 lg:pb-4 lg:grid lg:grid-cols-2 lg:gap-5 lg:p-4 xl:p-5 lg:h-[calc(100vh-100px)] lg:overflow-hidden bg-slate-50 items-stretch"
     >
       {/* Left Column: Input Card & Controls */}
-      <div className="w-full h-full min-h-0 overflow-hidden">
+      <div className="w-full min-h-0 lg:h-full lg:overflow-hidden">
         <InputCard
           text={text}
           setText={setText}
@@ -49,7 +49,7 @@ export default function MainLayout({
       </div>
 
       {/* Right Column: Summary Card */}
-      <div className="w-full h-full min-h-0 overflow-hidden">
+      <div className="w-full min-h-0 lg:h-full lg:overflow-hidden">
         <SummaryCard
           summary={summaryData?.summary || ''}
           method={summaryData?.method || method}
