@@ -33,7 +33,7 @@ export default function App() {
   const [currentView, setCurrentView] = useState('workspace'); // 'workspace' | 'nlp_analysis' | 'ranking' | 'analytics' | 'compare' | 'history' | 'accuracy'
 
   const [text, setText] = useState('');
-  const [method, setMethod] = useState('hybrid');
+  const [method, setMethod] = useState('frequency');
   const [numSentences, setNumSentences] = useState(3);
   const [frequencyWeight, setFrequencyWeight] = useState(50); // 0-100% single state for auto-balancing
 
