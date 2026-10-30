@@ -155,7 +155,7 @@ export default function App() {
 
       {/* 1. Summarizer Studio View */}
       {currentView === 'workspace' && (
-        <div className="flex-1 w-full min-h-0 min-w-0 flex flex-col lg:overflow-hidden overflow-y-auto bg-slate-50">
+        <div className="flex-1 w-full min-h-0 min-w-0 flex flex-col lg:overflow-hidden overflow-y-auto bg-slate-50 pb-28 lg:pb-0">
           <SummarizePage
               text={text}
               setText={setText}
@@ -178,7 +178,7 @@ export default function App() {
 
             {/* Mobile & Tablet Additional Metrics (< 1024px) */}
             {summaryData && (
-              <div className="lg:hidden space-y-4 animate-fade-up px-3 sm:px-4 mt-2 pb-28 sm:pb-32">
+              <div className="lg:hidden space-y-4 animate-fade-up px-3 sm:px-4 mt-2 pb-6">
                 <StatsGrid stats={summaryData} />
 
                 {/* Quick Navigation Cards */}

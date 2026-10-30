@@ -148,6 +148,12 @@ def summarize_text(req: SummarizeRequest):
         elif pos_score >= 0.8:
             reasons.append("Appears in primary introductory context")
         
+        if s_dict.get("has_dialogue"):
+            reasons.append("Dialogue / Quote Climax Boost (1.15x narrative weighting)")
+        if s_dict.get("has_high_overlap"):
+            reasons.append("MMR Redundancy Penalty: 50% score reduction due to >50% word overlap")
+        elif s_dict.get("selected") and available_sentences > 2:
+            reasons.append("High informational diversity (MMR verified)")
         if t_norm >= 0.5:
             reasons.append(f"High TF-IDF score ({t_norm:.2f}) indicating distinctive content")
         if f_norm >= 0.5:
@@ -166,7 +172,12 @@ def summarize_text(req: SummarizeRequest):
         s_dict["frequency_score"] = f_norm
         s_dict["length_score"] = len_score
         s_dict["redundancy_score"] = redundancy_score
-        s_dict["final_score"] = s_dict["score"]
+        s_dict["has_dialogue"] = s_dict.get("has_dialogue", False)
+        s_dict["dialogue_boost"] = s_dict.get("dialogue_boost", 1.0)
+        s_dict["has_high_overlap"] = s_dict.get("has_high_overlap", False)
+        s_dict["redundancy_penalty"] = s_dict.get("redundancy_penalty", 1.0)
+        s_dict["effective_score"] = s_dict.get("effective_score", s_dict["score"])
+        s_dict["final_score"] = s_dict.get("effective_score", s_dict["score"])
         s_dict["top_keywords"] = sentence_keywords
         s_dict["reasons"] = reasons
         s_dict["raw_tokens"] = raw_toks

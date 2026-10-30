@@ -26,6 +26,11 @@ class SentenceInfo(BaseModel):
     raw_tokens: Optional[List[str]] = Field(default=[], description="Tokenization output for this sentence")
     filtered_tokens: Optional[List[str]] = Field(default=[], description="Stop-word removal output")
     lemmas: Optional[List[str]] = Field(default=[], description="Lemmatized token roots")
+    has_dialogue: Optional[bool] = Field(default=False, description="Whether conversational or dialogue markers were detected")
+    dialogue_boost: Optional[float] = Field(default=1.0, description="Dialogue / quote multiplier applied (e.g. 1.15)")
+    has_high_overlap: Optional[bool] = Field(default=False, description="Whether this sentence had >50% word overlap with an earlier selected sentence")
+    redundancy_penalty: Optional[float] = Field(default=1.0, description="MMR redundancy penalty factor applied (e.g. 0.50)")
+    effective_score: Optional[float] = Field(default=0.0, description="Final score after dialogue boost and MMR penalty")
 
 
 class PreprocessingMetadata(BaseModel):

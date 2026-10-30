@@ -7,6 +7,7 @@ import {
   X,
   Loader2,
   AlertCircle,
+  AlertTriangle,
   FileCheck,
   Sliders,
 } from 'lucide-react';
@@ -116,8 +117,9 @@ export default function InputCard({
     const handleResize = () => {
       if (textareaRef.current) {
         if (window.innerWidth < 1024) {
+          const minHeight = window.innerWidth < 640 ? 120 : 250;
           textareaRef.current.style.height = 'auto';
-          textareaRef.current.style.height = `${Math.max(200, textareaRef.current.scrollHeight)}px`;
+          textareaRef.current.style.height = `${Math.max(minHeight, textareaRef.current.scrollHeight)}px`;
         } else {
           textareaRef.current.style.height = '';
         }
@@ -209,7 +211,7 @@ export default function InputCard({
 
   return (
     /* 1. Left Card: Spacious container commanding the left view */
-    <div className="flex flex-col w-full flex-none bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 sm:p-6 lg:flex-1 lg:h-full lg:min-h-0 lg:overflow-y-auto">
+    <div className="flex flex-col w-full flex-none bg-white rounded-2xl border border-slate-200/90 shadow-sm p-3.5 sm:p-6 lg:flex-1 lg:h-full lg:min-h-0 lg:overflow-y-auto">
       {/* 5. Card Header (Unified SaaS Header) */}
       <div className="flex-shrink-0 min-w-0 mb-4">
         <div className="flex items-center justify-between gap-3 min-w-0 mb-3">
@@ -219,10 +221,10 @@ export default function InputCard({
               <FileText className="w-5 h-5" />
             </div>
             <div className="min-w-0">
-              <h2 className="text-lg font-bold text-slate-900 leading-tight truncate">
+              <h2 className="text-base sm:text-lg font-bold text-slate-900 leading-tight">
                 Original Text
               </h2>
-              <p className="text-sm text-slate-500 font-normal truncate">
+              <p className="text-xs sm:text-sm text-slate-500 font-normal leading-snug">
                 Input your source document to summarize
               </p>
             </div>
@@ -333,10 +335,10 @@ export default function InputCard({
       {/* 
         1. Left Card - Textarea (CRITICAL):
         Textarea wrapper expands naturally on mobile and commands space with `lg:flex-1`.
-        Textarea auto-expands on mobile with `overflow-hidden min-h-[200px]`, eliminating inner scrollbars.
+        Textarea auto-expands on mobile with `overflow-hidden min-h-[120px] sm:min-h-[250px]`, eliminating inner scrollbars.
       */}
       <div
-        className="w-full min-h-[200px] flex flex-col mb-4 relative lg:flex-1"
+        className="w-full min-h-[120px] sm:min-h-[250px] flex flex-col mb-3 sm:mb-4 relative lg:flex-1"
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleDrop}
       >
@@ -346,8 +348,9 @@ export default function InputCard({
           onChange={(e) => {
             setText(e.target.value);
             if (window.innerWidth < 1024) {
+              const minHeight = window.innerWidth < 640 ? 120 : 250;
               e.target.style.height = 'auto';
-              e.target.style.height = `${Math.max(200, e.target.scrollHeight)}px`;
+              e.target.style.height = `${Math.max(minHeight, e.target.scrollHeight)}px`;
             }
             if (docMeta) setDocMeta(null);
             if (fileError) setFileError('');
@@ -355,7 +358,7 @@ export default function InputCard({
           onKeyDown={handleKeyDown}
           placeholder="Paste or type your English or Hindi article here, or drag & drop a .TXT / .MD / .PDF file..."
           disabled={extracting}
-          className="w-full min-h-[200px] resize-none overflow-hidden lg:overflow-y-auto lg:h-full bg-slate-50/50 border border-slate-200 rounded-xl p-4 text-slate-700 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow outline-none text-sm leading-relaxed disabled:opacity-50"
+          className="w-full min-h-[120px] sm:min-h-[250px] resize-none overflow-hidden lg:overflow-y-auto lg:h-full bg-slate-50/50 border border-slate-200 rounded-xl p-3 sm:p-4 text-slate-700 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow outline-none text-xs sm:text-sm leading-relaxed disabled:opacity-50"
         />
 
         {extracting && (
@@ -370,9 +373,9 @@ export default function InputCard({
         2. Left Card - Controls Section & Summarize Button:
         Neatly grouped in single container without feeling boxy.
       */}
-      <div className="flex-shrink-0 flex flex-col gap-4">
+      <div className="flex-shrink-0 flex flex-col gap-3 sm:gap-4">
         {/* Unified Controls Container */}
-        <div className="flex flex-col gap-5 p-5 bg-slate-50/50 rounded-2xl border border-slate-100">
+        <div className="flex flex-col gap-3.5 sm:gap-5 p-3.5 sm:p-5 bg-slate-50/50 rounded-xl sm:rounded-2xl border border-slate-100">
           {/* Summarization Method Selector */}
           <MethodSelector
             method={method}
@@ -464,21 +467,32 @@ export default function InputCard({
               aria-label="Summary length in sentences"
             />
 
-            <div className="flex justify-between text-[11px] text-slate-500 font-medium px-0.5">
-              <span>1 sentence</span>
-              {maxSliderValue >= 3 && (
-                <span>
-                  {Math.round(maxSliderValue / 2)}{' '}
-                  {Math.round(maxSliderValue / 2) === 1 ? 'sentence' : 'sentences'} (
-                  {Math.round((Math.round(maxSliderValue / 2) / maxSliderValue) * 100)}%)
+            <div className="flex justify-between items-center text-[10px] sm:text-[11px] text-slate-500 font-medium px-0.5 whitespace-nowrap gap-1">
+              <span className="shrink-0">1 sentence</span>
+              {maxSliderValue >= 4 && (
+                <span className="text-slate-400 font-normal truncate">
+                  ~{Math.round(maxSliderValue / 2)} ({Math.round((Math.round(maxSliderValue / 2) / maxSliderValue) * 100)}%)
                 </span>
               )}
               {maxSliderValue > 1 && (
-                <span>
+                <span className="shrink-0 text-right">
                   {maxSliderValue} {maxSliderValue === 1 ? 'sentence' : 'sentences'}
                 </span>
               )}
             </div>
+
+            {/* Warning Toast: When slider > 50% of document sentences */}
+            {sentenceCount > 1 && currentSliderVal > sentenceCount * 0.5 && (
+              <div
+                role="status"
+                className="flex items-start gap-2.5 p-3 bg-amber-50/90 border border-amber-200 rounded-xl text-amber-900 text-xs shadow-xs animate-in fade-in slide-in-from-top-1 duration-200 mt-2.5"
+              >
+                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <span className="leading-relaxed font-medium">
+                  <strong>Warning:</strong> Summary length is too high. The summary will just be a copy of the original text.
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
