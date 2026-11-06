@@ -1,15 +1,14 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
   Target,
   FileText,
   CheckCircle2,
-  Upload,
   X,
   RefreshCw,
   AlertCircle
 } from 'lucide-react';
-import { evaluateRouge, extractDocument } from '../services/api';
+import { evaluateRouge } from '../services/api';
 
 /**
  * RougeModal
@@ -20,11 +19,7 @@ export default function RougeModal({ isOpen, onClose, candidateSummary = '' }) {
   const [candidate, setCandidate] = useState(candidateSummary || '');
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [extractingFile, setExtractingFile] = useState(null); // 'candidate' | 'reference'
   const [error, setError] = useState('');
-
-  const candidateFileRef = useRef(null);
-  const referenceFileRef = useRef(null);
 
   useEffect(() => {
     if (candidateSummary) {
@@ -38,30 +33,6 @@ export default function RougeModal({ isOpen, onClose, candidateSummary = '' }) {
       setError('');
     }
   }, [isOpen]);
-
-  const handleFileUpload = async (file, target) => {
-    if (!file) return;
-    setError('');
-    setExtractingFile(target);
-
-    try {
-      if (file.name.endsWith('.txt') || file.name.endsWith('.md')) {
-        const text = await file.text();
-        if (target === 'candidate') setCandidate(text);
-        if (target === 'reference') setReference(text);
-      } else {
-        const data = await extractDocument(file);
-        if (target === 'candidate') setCandidate(data.text);
-        if (target === 'reference') setReference(data.text);
-      }
-    } catch (err) {
-      setError(`Failed to read file: ${err.message || 'Unknown error'}`);
-    } finally {
-      setExtractingFile(null);
-      if (candidateFileRef.current) candidateFileRef.current.value = '';
-      if (referenceFileRef.current) referenceFileRef.current.value = '';
-    }
-  };
 
   const handleEvaluate = async () => {
     if (!candidate.trim() || !reference.trim()) {
@@ -101,7 +72,7 @@ export default function RougeModal({ isOpen, onClose, candidateSummary = '' }) {
               <span>Accuracy Evaluation (ROUGE Metrics)</span>
             </h3>
             <p className="text-xs sm:text-sm font-normal text-slate-600 mt-1 leading-relaxed">
-              Paste or upload your candidate summary and ground truth reference file to evaluate precision, recall, and F1 scores.
+              Paste your candidate summary and ground truth reference text to evaluate precision, recall, and F1 scores.
             </p>
           </div>
           <button
@@ -135,27 +106,11 @@ export default function RougeModal({ isOpen, onClose, candidateSummary = '' }) {
                   <FileText size={16} className="text-indigo-600 shrink-0" />
                   <span>Generated Summary:</span>
                 </label>
-                <button
-                  type="button"
-                  onClick={() => candidateFileRef.current?.click()}
-                  disabled={extractingFile === 'candidate'}
-                  className="bg-white border border-slate-300 text-slate-700 rounded-lg px-2.5 py-1 text-xs font-medium hover:bg-slate-50 transition-colors inline-flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
-                >
-                  <Upload size={14} className="text-slate-500 shrink-0" />
-                  <span>{extractingFile === 'candidate' ? 'Reading...' : 'Upload File'}</span>
-                </button>
-                <input
-                  ref={candidateFileRef}
-                  type="file"
-                  accept=".txt,.md,.pdf"
-                  onChange={(e) => handleFileUpload(e.target.files?.[0], 'candidate')}
-                  className="hidden"
-                />
               </div>
               <textarea
                 value={candidate}
                 onChange={(e) => setCandidate(e.target.value)}
-                placeholder="Paste or upload generated summary text..."
+                placeholder="Paste generated summary text..."
                 className="w-full h-36 sm:h-44 p-3.5 text-xs sm:text-sm font-normal bg-slate-50 focus:bg-white border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none text-slate-800 placeholder:text-slate-400 transition-all shadow-inner"
               />
             </div>
@@ -167,27 +122,11 @@ export default function RougeModal({ isOpen, onClose, candidateSummary = '' }) {
                   <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
                   <span>Reference Summary:</span>
                 </label>
-                <button
-                  type="button"
-                  onClick={() => referenceFileRef.current?.click()}
-                  disabled={extractingFile === 'reference'}
-                  className="bg-white border border-slate-300 text-slate-700 rounded-lg px-2.5 py-1 text-xs font-medium hover:bg-slate-50 transition-colors inline-flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
-                >
-                  <Upload size={14} className="text-slate-500 shrink-0" />
-                  <span>{extractingFile === 'reference' ? 'Reading...' : 'Upload File'}</span>
-                </button>
-                <input
-                  ref={referenceFileRef}
-                  type="file"
-                  accept=".txt,.md,.pdf"
-                  onChange={(e) => handleFileUpload(e.target.files?.[0], 'reference')}
-                  className="hidden"
-                />
               </div>
               <textarea
                 value={reference}
                 onChange={(e) => setReference(e.target.value)}
-                placeholder="Paste or upload ground truth reference text..."
+                placeholder="Paste ground truth reference text..."
                 className="w-full h-36 sm:h-44 p-3.5 text-xs sm:text-sm font-normal bg-slate-50 focus:bg-white border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none text-slate-800 placeholder:text-slate-400 transition-all shadow-inner"
               />
             </div>

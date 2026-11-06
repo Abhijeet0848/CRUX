@@ -56,7 +56,7 @@ class SummaryStatistics(BaseModel):
 class SummarizeRequest(BaseModel):
     text: str = Field(..., min_length=5, description="Input text or document to summarize")
     method: str = Field(default="frequency", description="Summarization method: 'frequency', 'tfidf', or 'hybrid'")
-    num_sentences: int = Field(default=3, ge=1, le=100, description="Target number of sentences in summary")
+    num_sentences: int = Field(default=3, ge=1, le=20, description="Target number of sentences in summary")
     weight_frequency: Optional[float] = Field(default=0.5, ge=0.0, le=1.0, description="Hybrid weight for Frequency (0.0 - 1.0)")
     weight_tfidf: Optional[float] = Field(default=0.5, ge=0.0, le=1.0, description="Hybrid weight for TF-IDF (0.0 - 1.0)")
     save_to_history: Optional[bool] = Field(default=True, description="Whether to persist to SQLite history")

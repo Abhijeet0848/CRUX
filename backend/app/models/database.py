@@ -6,7 +6,10 @@ Provides optional persistence for summarized documents, telemetry, and metadata.
 
 import sqlite3
 import os
+import logging
 from typing import List, Dict, Any, Optional
+
+logger = logging.getLogger(__name__)
 
 if os.environ.get("VERCEL") or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"):
     DB_PATH = "/tmp/summarizer.db"
@@ -42,7 +45,7 @@ def init_db():
             conn.commit()
     except Exception as e:
         # Graceful fallback if filesystem is read-only
-        print(f"Warning: SQLite init failed ({e})")
+        logger.warning("SQLite init failed: %s", e)
 
 
 def save_history(

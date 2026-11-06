@@ -139,6 +139,60 @@ class TestRanking(unittest.TestCase):
         self.assertTrue(s4["selected"])
         self.assertIn("Modern hardware architecture", mmr_summary)
 
+    def test_request_clamping_graceful_handling(self):
+        """
+        [Graceful Clamping Verification]
+        Verifies that if a user requests 20 sentences but the document only has 8 (or 10 on 6),
+        the engine gracefully clamps and returns all available sentences without raising a 500 error.
+        """
+        eight_sentences = [
+            {"id": i, "text": f"Sentence number {i} of document.", "score": 0.5 + (i * 0.05)}
+            for i in range(1, 9)
+        ]
+        self.assertEqual(len(eight_sentences), 8)
+
+        # Request 20 sentences on an 8-sentence document
+        summary, annotated = RankingService.rank_and_select(eight_sentences, num_sentences=20)
+        
+        # All 8 sentences should be returned and selected
+        self.assertEqual(len(annotated), 8)
+        selected = [s for s in annotated if s["selected"]]
+        self.assertEqual(len(selected), 8)
+        # Verify chronological ordering preserved
+        self.assertEqual([s["id"] for s in selected], list(range(1, 9)))
+
+    def test_hybrid_redundancy_penalty_avoids_ranking_convergence(self):
+        """
+        [Hybrid Redundancy Penalty Verification]
+        Verifies that when a sentence has > 50% word overlap with an already selected sentence,
+        the Hybrid model applies a 20% penalty (0.80 multiplier) to force selection of a unique,
+        diverse sentence rather than converging to identical sentences as TF-IDF.
+        """
+        from backend.app.services.hybrid_summarizer import HybridSummarizer
+
+        sentences = [
+            {"id": 1, "text": "Quantum computers process complex calculations using quantum qubits and quantum states.", "score": 0.95},
+            {"id": 2, "text": "Quantum computers calculate complex problems using quantum qubits efficiently.", "score": 0.90},  # > 50% overlap with #1
+            {"id": 3, "text": "Superconducting circuits and cryogenic refrigerators form the physical infrastructure.", "score": 0.78},  # diverse topic
+        ]
+
+        # In Hybrid selection: Sentence 1 is picked first (0.95).
+        # Sentence 2 shares > 50% of words with Sentence 1 -> penalized by 20% (0.90 * 0.80 = 0.72).
+        # Sentence 3 (0.78) beats Sentence 2 (0.72) -> Hybrid selects [1, 3]!
+        summary, annotated = HybridSummarizer.select_sentences(sentences, num_sentences=2, overlap_threshold=0.50, penalty=0.20)
+        selected_ids = [s["id"] for s in annotated if s["selected"]]
+        self.assertEqual(selected_ids, [1, 3])
+
+        s2 = next(s for s in annotated if s["id"] == 2)
+        self.assertTrue(s2["has_high_overlap"])
+        self.assertEqual(s2["redundancy_penalty"], 0.80)
+        self.assertEqual(s2["effective_score"], 0.72)
+        self.assertFalse(s2["selected"])
+
+        s3 = next(s for s in annotated if s["id"] == 3)
+        self.assertTrue(s3["selected"])
+        self.assertIn("Superconducting circuits", summary)
+
 
 if __name__ == "__main__":
     unittest.main()

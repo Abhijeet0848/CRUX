@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart3, Zap } from 'lucide-react';
 import AppShell from './components/AppShell';
 import SummarizePage from './components/SummarizePage';
 import StatsGrid from './components/StatsGrid';
@@ -58,7 +57,7 @@ export default function App() {
 
   const handleSummarize = async () => {
     if (!text.trim()) {
-      setError('Please paste, type, or upload an article before summarizing.');
+      setError('Please paste or type an article before summarizing.');
       return;
     }
     setError('');
@@ -67,7 +66,7 @@ export default function App() {
     try {
       const data = await summarizeText({
         text,
-        method,
+        method: method,
         num_sentences: numSentences,
         weight_frequency: frequencyWeight / 100,
         weight_tfidf: (100 - frequencyWeight) / 100,

@@ -34,9 +34,17 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Database & Environment
+# Database & Environment Secrets
 *.db
 *.sqlite3
 .env
+.env.*
+*.env
+*.pem
+*.key
+venv/
+.venv/
+.idea/
+.vscode/
 .DS_Store
 Thumbs.db

@@ -19,7 +19,6 @@ import {
   Columns,
   Repeat,
   Gauge,
-  Upload,
   FileText,
   BarChart3,
   TrendingUp,
@@ -141,27 +140,11 @@ export default function ComparisonSection({
                   <FileText size={16} className="text-slate-500" />
                   <span>Reference / Human Summary (Optional):</span>
                 </label>
-                <label className="inline-flex items-center gap-1.5 text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1 rounded-lg cursor-pointer transition-all active:scale-95 shadow-xs">
-                  <Upload size={14} />
-                  <span>Upload .TXT / .MD</span>
-                  <input
-                    type="file"
-                    accept=".txt,.md"
-                    onChange={async (e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        const fileText = await file.text();
-                        setReferenceSummary?.(fileText);
-                      }
-                    }}
-                    className="hidden"
-                  />
-                </label>
               </div>
               <textarea
                 value={referenceSummary || ''}
                 onChange={(e) => setReferenceSummary?.(e.target.value)}
-                placeholder="Paste or upload a human-written summary file here to measure accuracy scores..."
+                placeholder="Paste a human-written summary here to measure accuracy scores..."
                 className="w-full h-28 p-3 text-xs sm:text-sm font-normal bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 focus:bg-white resize-none text-slate-800 placeholder:text-slate-400 transition-colors"
               />
             </div>

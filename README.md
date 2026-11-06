@@ -1,4 +1,4 @@
-# Intelligent Extractive Text Summarization System
+# Crux — Intelligent Extractive Text Summarization System
 
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI%200.115+-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/Frontend-React%2018%20+%20Vite-61DAFB.svg?logo=react&logoColor=black)](https://react.dev)
@@ -6,6 +6,26 @@
 [![Tailwind CSS](https://img.shields.io/badge/Styling-Tailwind%20CSS-38B2AC.svg?logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
 [![SQLite](https://img.shields.io/badge/Database-SQLite3-003B57.svg?logo=sqlite&logoColor=white)](https://sqlite.org)
 [![License](https://img.shields.io/badge/Academic-MCA%20Capstone%20Project-blue.svg)](#)
+
+> **Crux** is a high-performance, interpretability-first Extractive Text Summarization System. It combines **Word Frequency (Luhn's Paradigm)**, **TF-IDF Vector Space Modeling**, and a **Parametric Hybrid Model with Positional Lead Bias and Redundancy Penalties** to produce 100% factually grounded, hallucination-free summaries in sub-10 milliseconds.
+
+---
+
+## UI Screenshots & Dashboard Overview
+
+<p align="center">
+  <img src="docs/screenshots/app_preview.png" alt="Crux Intelligent Text Summarizer UI" width="900" style="border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.12);" />
+</p>
+
+### Key Interface Modules
+
+1. **Summarizer Studio**: Dual-pane workspace featuring live text input, in-memory PDF/TXT/MD document upload, method selector (Word Frequency, TF-IDF, Hybrid), dynamic 1–20 sentence length budget slider, and real-time compression telemetry.
+2. **Multi-Algorithm Comparison**: Side-by-side benchmark executing all three algorithms simultaneously, comparing sentence selections, compression ratios, and average sentence scores.
+3. **NLP Pipeline & Preprocessing Telemetry**: Transparent inspection of raw tokens, stop-word filtering, unique vocabulary count, and morphological transformations.
+4. **Sentence Scoring & Ranking Table**: Detailed explainability view showing feature breakdowns (Frequency, TF-IDF, Position score, Length score), Lead Bias bonuses, and chronological ordering.
+5. **Interactive Recharts Analytics**: Visual distribution of sentence importance scores and length normalization charts.
+6. **ROUGE Evaluation Modal**: Interactive benchmarking calculating ROUGE-1, ROUGE-2, and ROUGE-L precision, recall, and F1 scores against human-written gold reference summaries.
+7. **SQLite History Archive**: Persistent, filterable, and searchable repository of all past summarization runs with one-click reload and deletion.
 
 ---
 
@@ -258,43 +278,49 @@ NLP/
 
 ---
 
-## Installation
+## Quickstart & Local Installation
 
 ### Prerequisites
-- **Python**: 3.10, 3.11, 3.12, 3.13, or 3.14
-- **Node.js & npm**: Node 18+ (for frontend development)
+- **Python**: 3.10+ (tested through 3.14)
+- **Node.js**: v18+ and `npm`
 
-### Step 1: Clone Repository
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/your-username/Intelligent-Text-Summarizer.git
 cd Intelligent-Text-Summarizer
 ```
 
-### Step 2: Install Python Dependencies
+### 2. Backend Setup (FastAPI)
 ```bash
+# Optional: create and activate a virtual environment
+python -m venv .venv
+# Windows:
+.venv\Scripts\activate
+# Linux/macOS:
+source .venv/bin/activate
+
+# Install Python dependencies
 pip install -r requirements.txt
-```
 
----
-
-## Running the Backend
-
-Start the FastAPI backend with hot-reload:
-```bash
+# Start the FastAPI server
 python -m uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
+- **Backend API**: `http://localhost:8000`
+- **Interactive Swagger Docs**: `http://localhost:8000/docs`
+- **ReDoc Documentation**: `http://localhost:8000/redoc`
 
-- API Server: `http://localhost:8000`
-- Swagger OpenAPI Documentation: `http://localhost:8000/docs`
-- Redoc Documentation: `http://localhost:8000/redoc`
-
----
-
-## Running the Frontend
-
-Navigate to the frontend directory and start the Vite development server:
+### 3. Frontend Setup (React + Vite)
+In a separate terminal window:
 ```bash
 cd frontend
+npm install
+npm run dev
+```
+- **Web Dashboard**: `http://localhost:5173`
+
+### 4. Single-Command Concurrent Startup (Root)
+From the project root directory, you can also launch both the backend and frontend simultaneously:
+```bash
 npm install
 npm run dev
 ```

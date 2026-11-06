@@ -1,18 +1,14 @@
-import React, { useRef, useState, useMemo, useEffect } from 'react';
+import React, { useRef, useMemo, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
   FileText,
-  Upload,
   Sparkles,
   X,
   Loader2,
-  AlertCircle,
   AlertTriangle,
-  FileCheck,
   Sliders,
 } from 'lucide-react';
 import MethodSelector from './MethodSelector';
-import { extractDocument } from '../services/api';
 
 /**
  * InputCard Component
@@ -38,11 +34,7 @@ export default function InputCard({
   error,
   onClear,
 }) {
-  const fileInputRef = useRef(null);
   const textareaRef = useRef(null);
-  const [docMeta, setDocMeta] = useState(null);
-  const [extracting, setExtracting] = useState(false);
-  const [fileError, setFileError] = useState('');
 
   // Clean text calculation for accurate counts
   const cleanClientText = useMemo(() => {
@@ -99,18 +91,18 @@ export default function InputCard({
     return clientSentences.length;
   }, [cleanClientText]);
 
-  // Dynamic slider range bound to actual sentence count
-  const maxSliderValue = sentenceCount > 0 ? sentenceCount : 5;
-  const currentSliderVal = sentenceCount > 0 ? Math.min(numSentences, maxSliderValue) : numSentences;
+  // Dynamic slider range bound to actual sentence count (max capped at 20 sentences, default 20 when empty)
+  const maxSliderValue = sentenceCount === 0 ? 20 : Math.min(sentenceCount, 20);
+  const currentSliderVal = Math.min(Math.max(1, numSentences), maxSliderValue);
 
   // Auto-clamp requested summary length if input has fewer sentences than previous slider value
   useEffect(() => {
-    if (sentenceCount > 0 && numSentences > sentenceCount) {
-      setNumSentences(sentenceCount);
+    if (sentenceCount > 0 && numSentences > maxSliderValue) {
+      setNumSentences(maxSliderValue);
     } else if (sentenceCount > 0 && numSentences < 1) {
       setNumSentences(1);
     }
-  }, [sentenceCount, numSentences, setNumSentences]);
+  }, [sentenceCount, maxSliderValue, numSentences, setNumSentences]);
 
   // Auto-expand textarea on mobile screens to eliminate inner scrollbars
   useEffect(() => {
@@ -139,61 +131,10 @@ export default function InputCard({
   // Language check (Devanagari vs. Latin script)
   const isHindi = /[\u0900-\u097F]/.test(text);
 
-  const processFile = async (file) => {
-    if (!file) return;
-    setFileError('');
-
-    const lowerName = file.name.toLowerCase();
-    const isValidType =
-      lowerName.endsWith('.txt') ||
-      lowerName.endsWith('.md') ||
-      lowerName.endsWith('.pdf');
-
-    if (!isValidType) {
-      setFileError('Unsupported format. Please upload a .TXT, .MD, or .PDF file.');
-      return;
-    }
-
-    if (file.size > 10 * 1024 * 1024) {
-      setFileError('File size exceeds the 10 MB limit.');
-      return;
-    }
-
-    setExtracting(true);
-    try {
-      const data = await extractDocument(file);
-      setText(data.text);
-      setDocMeta({
-        filename: data.filename,
-        wordCount: data.word_count,
-        sentenceCount: data.sentence_count,
-        fileSizeBytes: data.file_size_bytes,
-        extension: data.extension,
-      });
-    } catch (err) {
-      console.error(err);
-      setFileError(err.message || 'Could not parse text from this document.');
-    } finally {
-      setExtracting(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
-  };
-
-  const handleFileUpload = (e) => {
-    const file = e.target.files?.[0];
-    if (file) processFile(file);
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files?.[0];
-    if (file) processFile(file);
-  };
-
   const handleKeyDown = (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
       e.preventDefault();
-      if (text.trim() && !loading && !extracting) {
+      if (text.trim() && !loading) {
         onSummarize();
       }
     }
@@ -201,12 +142,10 @@ export default function InputCard({
 
   const handleClearAll = () => {
     setText('');
-    setDocMeta(null);
-    setFileError('');
     if (onClear) onClear();
   };
 
-  const isSummarizeDisabled = !text.trim() || loading || extracting;
+  const isSummarizeDisabled = !text.trim() || loading;
   const tfidfWeight = 100 - frequencyWeight;
 
   return (
@@ -261,25 +200,6 @@ export default function InputCard({
           </div>
 
           <div className="flex items-center gap-2 flex-shrink-0">
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={extracting}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg transition-colors cursor-pointer"
-              title="Upload .txt, .md, or .pdf"
-            >
-              <Upload className="w-3.5 h-3.5 text-indigo-600 flex-shrink-0" />
-              <span>Upload File</span>
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".txt,.md,.pdf"
-              onChange={handleFileUpload}
-              className="hidden"
-              aria-label="Upload document file"
-            />
-
             {text && (
               <button
                 type="button"
@@ -293,43 +213,6 @@ export default function InputCard({
             )}
           </div>
         </div>
-
-        {/* Ingested Document Metadata Banner */}
-        {docMeta && (
-          <div className="mt-2.5 p-2 bg-indigo-50/80 border border-indigo-200 rounded-xl flex items-center justify-between gap-2 text-xs">
-            <div className="flex items-center gap-2 min-w-0 flex-1 truncate">
-              <FileCheck className="w-4 h-4 text-indigo-600 flex-shrink-0" />
-              <span className="font-semibold text-indigo-900 truncate">{docMeta.filename}</span>
-              <span className="text-slate-500">· {docMeta.wordCount?.toLocaleString()} words</span>
-            </div>
-            <button
-              type="button"
-              onClick={() => setDocMeta(null)}
-              aria-label="Dismiss file banner"
-              className="text-slate-500 hover:text-slate-800 p-0.5 cursor-pointer"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        )}
-
-        {/* File Error Toast */}
-        {fileError && (
-          <div className="mt-2.5 p-2 bg-red-50 border border-red-200 rounded-xl text-xs font-medium text-red-700 flex justify-between items-center gap-2">
-            <div className="flex items-center gap-2 truncate">
-              <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
-              <span className="truncate">{fileError}</span>
-            </div>
-            <button
-              type="button"
-              onClick={() => setFileError('')}
-              aria-label="Dismiss error"
-              className="text-red-700 hover:text-red-900 p-0.5 cursor-pointer"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        )}
       </div>
 
       {/* 
@@ -337,11 +220,7 @@ export default function InputCard({
         Textarea wrapper expands naturally on mobile and commands space with `lg:flex-1`.
         Textarea auto-expands on mobile with `overflow-hidden min-h-[120px] sm:min-h-[250px]`, eliminating inner scrollbars.
       */}
-      <div
-        className="w-full min-h-[120px] sm:min-h-[250px] flex flex-col mb-3 sm:mb-4 relative lg:flex-1"
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={handleDrop}
-      >
+      <div className="w-full min-h-[120px] sm:min-h-[250px] flex flex-col mb-3 sm:mb-4 relative lg:flex-1">
         <textarea
           ref={textareaRef}
           value={text}
@@ -352,21 +231,11 @@ export default function InputCard({
               e.target.style.height = 'auto';
               e.target.style.height = `${Math.max(minHeight, e.target.scrollHeight)}px`;
             }
-            if (docMeta) setDocMeta(null);
-            if (fileError) setFileError('');
           }}
           onKeyDown={handleKeyDown}
-          placeholder="Paste or type your English or Hindi article here, or drag & drop a .TXT / .MD / .PDF file..."
-          disabled={extracting}
-          className="w-full min-h-[120px] sm:min-h-[250px] resize-none overflow-hidden lg:overflow-y-auto lg:h-full bg-slate-50/50 border border-slate-200 rounded-xl p-3 sm:p-4 text-slate-700 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow outline-none text-xs sm:text-sm leading-relaxed disabled:opacity-50"
+          placeholder="Paste or type your English or Hindi article here..."
+          className="w-full min-h-[120px] sm:min-h-[250px] resize-none overflow-hidden lg:overflow-y-auto lg:h-full bg-slate-50/50 border border-slate-200 rounded-xl p-3 sm:p-4 text-slate-700 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow outline-none text-xs sm:text-sm leading-relaxed"
         />
-
-        {extracting && (
-          <div className="absolute inset-0 bg-white/95 backdrop-blur-2xs rounded-xl flex flex-col items-center justify-center text-indigo-700 gap-2 p-4 text-center">
-            <Loader2 className="w-6 h-6 animate-spin text-indigo-600" />
-            <span className="text-xs font-semibold text-slate-900">Parsing document in RAM...</span>
-          </div>
-        )}
       </div>
 
       {/* 
@@ -459,19 +328,19 @@ export default function InputCard({
               max={maxSliderValue}
               step="1"
               value={currentSliderVal}
-              disabled={sentenceCount <= 1}
+              disabled={sentenceCount === 1}
               onChange={(e) => setNumSentences(Number(e.target.value))}
               className={`w-full accent-indigo-600 h-1.5 bg-slate-200 rounded-lg appearance-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus:outline-none my-1 ${
-                sentenceCount <= 1 ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'
+                sentenceCount === 1 ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'
               }`}
               aria-label="Summary length in sentences"
             />
 
             <div className="flex justify-between items-center text-[10px] sm:text-[11px] text-slate-500 font-medium px-0.5 whitespace-nowrap gap-1">
               <span className="shrink-0">1 sentence</span>
-              {maxSliderValue >= 4 && (
+              {maxSliderValue > 1 && (
                 <span className="text-slate-400 font-normal truncate">
-                  ~{Math.round(maxSliderValue / 2)} ({Math.round((Math.round(maxSliderValue / 2) / maxSliderValue) * 100)}%)
+                  {currentSliderVal} (~{Math.round((currentSliderVal / maxSliderValue) * 100)}%)
                 </span>
               )}
               {maxSliderValue > 1 && (

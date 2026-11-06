@@ -27,7 +27,6 @@ export async function extractDocument(file) {
 
 
 export async function summarizeText({ text, method = "frequency", num_sentences = 3, weight_frequency = 0.5, weight_tfidf = 0.5 }) {
-
   const response = await fetch(`${API_BASE}/api/summarize`, {
     method: "POST",
     headers: {
@@ -35,7 +34,7 @@ export async function summarizeText({ text, method = "frequency", num_sentences 
     },
     body: JSON.stringify({
       text,
-      method,
+      method: method,
       num_sentences: Number(num_sentences),
       weight_frequency: Number(weight_frequency),
       weight_tfidf: Number(weight_tfidf),

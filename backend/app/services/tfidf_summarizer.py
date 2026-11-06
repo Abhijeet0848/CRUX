@@ -61,6 +61,12 @@ class TfidfSummarizer:
                     nonzero_scores = [val for val in row_data if val > 0]
                     sentence_score = sum(nonzero_scores) / (len(nonzero_scores) ** 0.5) if nonzero_scores else 0.0
 
+                    # Lead Bias (Positional Bonus): Prioritize introductory definition sentences
+                    if idx == 0:
+                        sentence_score *= 1.25
+                    elif idx == 1:
+                        sentence_score *= 1.10
+
                     scored.append({
                         "id": idx + 1,
                         "text": sentence,
@@ -96,6 +102,12 @@ class TfidfSummarizer:
             doc_len = len(tokens)
             raw_tfidf = sum((tf[w] / doc_len) * idf.get(w, 0.0) for w in tokens)
             score = raw_tfidf / (doc_len ** 0.2 if doc_len > 0 else 1.0)
+
+            # Lead Bias (Positional Bonus): Prioritize introductory definition sentences
+            if idx == 0:
+                score *= 1.25
+            elif idx == 1:
+                score *= 1.10
 
             scored.append({
                 "id": idx + 1,

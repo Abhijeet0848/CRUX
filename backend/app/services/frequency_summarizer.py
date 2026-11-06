@@ -64,6 +64,12 @@ class FrequencySummarizer:
             length_factor = len(tokens) ** 0.5 if len(tokens) > 0 else 1.0
             normalized_score = raw_score / length_factor
 
+            # Lead Bias (Positional Bonus): Prioritize introductory definition sentences
+            if idx == 0:
+                normalized_score *= 1.25
+            elif idx == 1:
+                normalized_score *= 1.10
+
             scored_sentences.append({
                 "id": idx + 1,
                 "text": sentence,

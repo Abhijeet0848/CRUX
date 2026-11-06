@@ -1,7 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Upload,
   Zap,
   Sparkles,
   CheckCircle2,
@@ -10,7 +9,7 @@ import {
   AlertCircle,
   FileCheck,
 } from 'lucide-react';
-import { evaluateRouge, extractDocument } from '../services/api';
+import { evaluateRouge } from '../services/api';
 import EmptyState from './EmptyState';
 import { emptyStatesConfig } from '../config/emptyStates';
 
@@ -27,41 +26,13 @@ export default function AccuracyCheckPage({
   const [candidate, setCandidate] = useState(candidateSummary || '');
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [extractingFile, setExtractingFile] = useState(null);
   const [error, setError] = useState('');
-
-  const candidateFileRef = useRef(null);
-  const referenceFileRef = useRef(null);
 
   React.useEffect(() => {
     if (candidateSummary) {
       setCandidate(candidateSummary);
     }
   }, [candidateSummary]);
-
-  const handleFileUpload = async (file, target) => {
-    if (!file) return;
-    setError('');
-    setExtractingFile(target);
-
-    try {
-      if (file.name.endsWith('.txt') || file.name.endsWith('.md')) {
-        const text = await file.text();
-        if (target === 'candidate') setCandidate(text);
-        if (target === 'reference') setReference(text);
-      } else {
-        const data = await extractDocument(file);
-        if (target === 'candidate') setCandidate(data.text);
-        if (target === 'reference') setReference(data.text);
-      }
-    } catch (err) {
-      setError(`Failed to read file: ${err.message || 'Unknown error'}`);
-    } finally {
-      setExtractingFile(null);
-      if (candidateFileRef.current) candidateFileRef.current.value = '';
-      if (referenceFileRef.current) referenceFileRef.current.value = '';
-    }
-  };
 
   const handleEvaluate = async () => {
     if (!candidate.trim() || !reference.trim()) {
@@ -139,27 +110,11 @@ export default function AccuracyCheckPage({
                 <FileCheck className="w-4 h-4 text-indigo-600" />
                 <span>Extracted Summary:</span>
               </label>
-              <button
-                type="button"
-                onClick={() => candidateFileRef.current?.click()}
-                disabled={extractingFile === 'candidate'}
-                className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-2 py-0.5 rounded-md cursor-pointer"
-              >
-                <Upload className="w-3 h-3" />
-                <span>{extractingFile === 'candidate' ? 'Reading...' : 'Upload File'}</span>
-              </button>
-              <input
-                ref={candidateFileRef}
-                type="file"
-                accept=".txt,.md"
-                onChange={(e) => handleFileUpload(e.target.files?.[0], 'candidate')}
-                className="hidden"
-              />
             </div>
             <textarea
               value={candidate}
               onChange={(e) => setCandidate(e.target.value)}
-              placeholder="Paste or upload the generated candidate summary..."
+              placeholder="Paste the generated candidate summary..."
               className="w-full h-36 p-3 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 focus:bg-white resize-none text-slate-800"
             />
           </div>
@@ -171,27 +126,11 @@ export default function AccuracyCheckPage({
                 <CheckCircle2 className="w-4 h-4 text-rose-600" />
                 <span>Reference Summary (Ground Truth):</span>
               </label>
-              <button
-                type="button"
-                onClick={() => referenceFileRef.current?.click()}
-                disabled={extractingFile === 'reference'}
-                className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-2 py-0.5 rounded-md cursor-pointer"
-              >
-                <Upload className="w-3 h-3" />
-                <span>{extractingFile === 'reference' ? 'Reading...' : 'Upload File'}</span>
-              </button>
-              <input
-                ref={referenceFileRef}
-                type="file"
-                accept=".txt,.md"
-                onChange={(e) => handleFileUpload(e.target.files?.[0], 'reference')}
-                className="hidden"
-              />
             </div>
             <textarea
               value={reference}
               onChange={(e) => setReference(e.target.value)}
-              placeholder="Paste or upload ground truth reference text..."
+              placeholder="Paste ground truth reference text..."
               className="w-full h-36 p-3 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-rose-500 focus:bg-white resize-none text-slate-800"
             />
           </div>

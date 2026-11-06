@@ -110,18 +110,19 @@ def summarize_text(req: SummarizeRequest):
             detail=f"Invalid summarization method '{req.method}'. Allowed methods: 'frequency', 'tfidf', 'hybrid'."
         )
 
-    # Apply informative lead position prior (Luhn & Edmundson lead sentence premise)
-    for idx_s, s_item in enumerate(scored):
-        if idx_s == 0:
-            s_item["score"] = round(s_item["score"] * 1.15, 4)
-        elif idx_s == 1:
-            s_item["score"] = round(s_item["score"] * 1.06, 4)
-
     # Step 6: Sentence Ranking & Chronological Top-K Selection
-    summary, annotated_sentences = RankingService.rank_and_select(
-        scored,
-        num_sentences=target_k
-    )
+    if method == "hybrid":
+        summary, annotated_sentences = HybridSummarizer.select_sentences(
+            scored,
+            num_sentences=target_k,
+            overlap_threshold=0.50,
+            penalty=0.20
+        )
+    else:
+        summary, annotated_sentences = RankingService.rank_and_select(
+            scored,
+            num_sentences=target_k
+        )
 
     # Enrich annotated sentences with multi-feature scores, reasons, and NLP pipeline data
     for idx, s_dict in enumerate(annotated_sentences):
@@ -306,7 +307,15 @@ def compare_algorithms(req: CompareRequest):
                 weight_tfidf=req.weight_tfidf if req.weight_tfidf is not None else 0.5
             )
 
-        summary, annotated = RankingService.rank_and_select(scored, num_sentences=target_k)
+        if method_key == "hybrid":
+            summary, annotated = HybridSummarizer.select_sentences(
+                scored,
+                num_sentences=target_k,
+                overlap_threshold=0.50,
+                penalty=0.20
+            )
+        else:
+            summary, annotated = RankingService.rank_and_select(scored, num_sentences=target_k)
         elapsed_ms = (time.perf_counter() - t0) * 1000.0
 
         selected_sentences = [s for s in annotated if s["selected"]]
