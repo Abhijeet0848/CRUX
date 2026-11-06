@@ -144,6 +144,17 @@ class Preprocessor:
         return text.strip()
 
     @classmethod
+    def clean_sentence(cls, sentence: str) -> str:
+        """
+        Cleans an extracted sentence string:
+        Strips leading and trailing whitespace and quotes (" ' “ ”)
+        without altering internal quotation marks inside the sentence body.
+        """
+        if not sentence or not isinstance(sentence, str):
+            return ""
+        return sentence.strip().strip('"\'“”').strip()
+
+    @classmethod
     def segment_sentences(cls, cleaned_text: str) -> List[str]:
         """
         Step 2: Sentence Boundary Segmentation (Multilingual: English . ! ? and Hindi । ॥ |)
@@ -210,18 +221,19 @@ class Preprocessor:
             if has_terminals:
                 parts = re.findall(term_pattern, line_str)
                 for p in parts:
-                    clean_p = p.strip()
+                    clean_p = cls.clean_sentence(p)
                     # Filter out stray single punctuation marks or bullets alone
                     if clean_p and not re.fullmatch(r'^[.,!?;:।॥\-*•–—\s]+$', clean_p):
                         sentences.append(clean_p)
             else:
                 # Line without terminal punctuation (e.g. unpunctuated bullet point or title line)
-                if not re.fullmatch(r'^[.,!?;:।॥\-*•–—\s]+$', line_str):
-                    sentences.append(line_str)
+                clean_line = cls.clean_sentence(line_str)
+                if clean_line and not re.fullmatch(r'^[.,!?;:।॥\-*•–—\s]+$', clean_line):
+                    sentences.append(clean_line)
 
         # 5. Fallback: If no split occurred but text has semicolons, fallback
         if len(sentences) <= 1 and ';' in cleaned_text:
-            semi_splits = [s.strip() for s in cleaned_text.split(';') if s.strip()]
+            semi_splits = [cls.clean_sentence(s) for s in cleaned_text.split(';') if cls.clean_sentence(s)]
             if len(semi_splits) > 1:
                 return semi_splits
                 
@@ -319,13 +331,14 @@ class Preprocessor:
         all_meaningful_tokens = []
 
         for idx, sentence in enumerate(original_sentences):
-            raw_tokens = cls.tokenize(sentence)
+            clean_s = cls.clean_sentence(sentence)
+            raw_tokens = cls.tokenize(clean_s)
             lemmas = cls.filter_and_lemmatize(raw_tokens, lang=lang)
             all_meaningful_tokens.extend(lemmas)
 
             processed_sentences.append({
                 "id": idx + 1,
-                "original_text": sentence,
+                "original_text": clean_s,
                 "raw_tokens": raw_tokens,
                 "tokens": lemmas,
                 "lemmas": lemmas,

@@ -59,6 +59,56 @@ class TestPreprocessing(unittest.TestCase):
         self.assertTrue(any(t.startswith("analyz") for t in tokens))
         self.assertTrue(any(t.startswith("algorithm") for t in tokens))
 
+    def test_clean_sentence_strips_quotes(self):
+        # 1. Double quotes
+        raw_double = '"Natural Language Processing is a subfield of AI."'
+        self.assertEqual(
+            Preprocessor.clean_sentence(raw_double),
+            "Natural Language Processing is a subfield of AI."
+        )
+
+        # 2. Single quotes
+        raw_single = "'Extractive summarization preserves original phrasing.'"
+        self.assertEqual(
+            Preprocessor.clean_sentence(raw_single),
+            "Extractive summarization preserves original phrasing."
+        )
+
+        # 3. Unicode curly quotes (“ ”)
+        raw_curly = "“Deep learning models rely on neural networks.”"
+        self.assertEqual(
+            Preprocessor.clean_sentence(raw_curly),
+            "Deep learning models rely on neural networks."
+        )
+
+        # 4. Whitespace padding around quotes
+        raw_padded = '   "Text analytics provides actionable insights."   '
+        self.assertEqual(
+            Preprocessor.clean_sentence(raw_padded),
+            "Text analytics provides actionable insights."
+        )
+
+        # 5. Internal quotes MUST be preserved intact
+        internal_single = '"The researcher declared, \'Transformers revolutionized NLP\', during the conference."'
+        self.assertEqual(
+            Preprocessor.clean_sentence(internal_single),
+            "The researcher declared, 'Transformers revolutionized NLP', during the conference."
+        )
+
+        internal_double = '\'The author wrote, "Knowledge is power", in chapter one.\''
+        self.assertEqual(
+            Preprocessor.clean_sentence(internal_double),
+            'The author wrote, "Knowledge is power", in chapter one.'
+        )
+
+    def test_segment_sentences_strips_quotes(self):
+        text = '"First sentence with quotes." "Second sentence with quotes." “Third sentence with curly quotes.”'
+        sentences = Preprocessor.segment_sentences(text)
+        self.assertEqual(len(sentences), 3)
+        self.assertEqual(sentences[0], "First sentence with quotes.")
+        self.assertEqual(sentences[1], "Second sentence with quotes.")
+        self.assertEqual(sentences[2], "Third sentence with curly quotes.")
+
     def test_preprocess_structured_output(self):
         raw = "<p>Quantum computers use qubits. Classical systems use binary bits.</p>"
         result = Preprocessor.preprocess(raw)

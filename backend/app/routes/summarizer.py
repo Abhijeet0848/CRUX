@@ -126,6 +126,8 @@ def summarize_text(req: SummarizeRequest):
 
     # Enrich annotated sentences with multi-feature scores, reasons, and NLP pipeline data
     for idx, s_dict in enumerate(annotated_sentences):
+        # Strip leading and trailing quotes from every extracted sentence
+        s_dict["text"] = s_dict["text"].strip().strip('"\'“”').strip()
         raw_toks = Preprocessor.tokenize(s_dict["text"])
         lemmas = Preprocessor.filter_and_lemmatize(raw_toks)
         
@@ -191,6 +193,7 @@ def summarize_text(req: SummarizeRequest):
 
     # Programmatic Extractive Validation (100% extractive verification)
     selected_texts = [s["text"] for s in annotated_sentences if s["selected"]]
+    summary = " ".join(st.strip().strip('"\'“”').strip() for st in selected_texts)
     is_verified = all(st in cleaned_text for st in selected_texts) if selected_texts else True
 
     # Compute top word frequencies
@@ -318,7 +321,10 @@ def compare_algorithms(req: CompareRequest):
             summary, annotated = RankingService.rank_and_select(scored, num_sentences=target_k)
         elapsed_ms = (time.perf_counter() - t0) * 1000.0
 
+        for s in annotated:
+            s["text"] = s["text"].strip().strip('"\'“”').strip()
         selected_sentences = [s for s in annotated if s["selected"]]
+        summary = " ".join(s["text"].strip().strip('"\'“”').strip() for s in selected_sentences)
         avg_score = (
             sum(s["score"] for s in selected_sentences) / len(selected_sentences)
             if selected_sentences else 0.0

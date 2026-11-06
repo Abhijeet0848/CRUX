@@ -266,6 +266,10 @@ class RankingService:
                 })
 
         # 3. Restore selected sentences to original chronological document order
+        # Strip leading and trailing quotes from every extracted sentence
+        for item in annotated_sentences:
+            item["text"] = item["text"].strip().strip('"\'“”').strip()
+
         selected_in_order = [
             item for item in annotated_sentences if item["selected"]
         ]
@@ -273,6 +277,6 @@ class RankingService:
         selected_in_order.sort(key=lambda x: x["id"])
 
         # 4. Construct final extractive summary
-        summary = " ".join(item["text"].strip() for item in selected_in_order)
+        summary = " ".join(item["text"].strip().strip('"\'“”').strip() for item in selected_in_order)
 
         return summary, annotated_sentences

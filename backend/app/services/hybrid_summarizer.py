@@ -150,9 +150,10 @@ class HybridSummarizer:
 
         for s in all_sentences:
             s.pop("_words", None)
+            s["text"] = s["text"].strip().strip('"\'“”').strip()
 
         # 4. Construct final summary text
-        summary = " ".join(s["text"].strip() for s in all_sentences if s["selected"])
+        summary = " ".join(s["text"].strip().strip('"\'“”').strip() for s in all_sentences if s["selected"])
         return summary, all_sentences
 
     @classmethod

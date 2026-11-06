@@ -77,6 +77,23 @@ class TestSummarizers(unittest.TestCase):
         self.assertTrue(len(summary) > 0)
         self.assertEqual(len([s for s in annotated if s["selected"]]), 2)
 
+    def test_summarizers_strip_leading_trailing_quotes(self):
+        quoted_text = (
+            '"Artificial intelligence is the simulation of human intelligence by computer systems." '
+            '“Machine learning enables systems to learn from data patterns automatically.” '
+            '\'Deep learning utilizes multi-layer neural networks for complex representations.\' '
+            '"A researcher stated, \'NLP transforms human interaction\', in modern computing."'
+        )
+        for method_fn in [FrequencySummarizer.summarize, TfidfSummarizer.summarize, HybridSummarizer.summarize]:
+            summary, annotated = method_fn(quoted_text, num_sentences=2)
+            self.assertTrue(len(summary) > 0)
+            self.assertFalse(summary.startswith(('"', "'", "“", "”")))
+            self.assertFalse(summary.endswith(('"', "'", "“", "”")))
+            for s in annotated:
+                text = s["text"]
+                self.assertFalse(text.startswith(('"', "'", "“", "”")))
+                self.assertFalse(text.endswith(('"', "'", "“", "”")))
+
 
 if __name__ == "__main__":
     unittest.main()
