@@ -95,6 +95,25 @@ class TestSummarizers(unittest.TestCase):
                 self.assertFalse(text.endswith(('"', "'", "“", "”")))
 
 
+    def test_critical_keyword_booster(self):
+        doc = (
+            "Software agreements contain standard terms and conditions. "
+            "The customer may request regular maintenance services during work hours. "
+            "Payment schedules follow standard thirty day billing cycles. "
+            "The vendor must indemnify the customer against all liabilities resulting from any security breach."
+        )
+        for method_fn in [FrequencySummarizer.summarize, TfidfSummarizer.summarize, HybridSummarizer.summarize]:
+            summary, annotated = method_fn(doc, num_sentences=2)
+            selected_texts = [s["text"] for s in annotated if s["selected"]]
+            self.assertTrue(
+                any("indemnify" in st.lower() for st in selected_texts),
+                f"Failed to boost critical clause using {method_fn}"
+            )
+            critical_item = next(s for s in annotated if "indemnify" in s["text"].lower())
+            self.assertTrue(critical_item["has_critical_keyword"])
+            self.assertIn("indemnify", critical_item["critical_keywords"])
+
+
 if __name__ == "__main__":
     unittest.main()
 

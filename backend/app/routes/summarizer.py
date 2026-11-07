@@ -153,6 +153,9 @@ def summarize_text(req: SummarizeRequest):
         
         if s_dict.get("has_dialogue"):
             reasons.append("Dialogue / Quote Climax Boost (1.15x narrative weighting)")
+        if s_dict.get("has_critical_keyword"):
+            kw_str = ", ".join(s_dict.get("critical_keywords", []))
+            reasons.append(f"Critical Clause Boost (2.5x high-stakes weighting: {kw_str})")
         if s_dict.get("has_high_overlap"):
             reasons.append("MMR Redundancy Penalty: 50% score reduction due to >50% word overlap")
         elif s_dict.get("selected") and available_sentences > 2:
@@ -177,6 +180,8 @@ def summarize_text(req: SummarizeRequest):
         s_dict["redundancy_score"] = redundancy_score
         s_dict["has_dialogue"] = s_dict.get("has_dialogue", False)
         s_dict["dialogue_boost"] = s_dict.get("dialogue_boost", 1.0)
+        s_dict["has_critical_keyword"] = s_dict.get("has_critical_keyword", False)
+        s_dict["critical_keywords"] = s_dict.get("critical_keywords", [])
         s_dict["has_high_overlap"] = s_dict.get("has_high_overlap", False)
         s_dict["redundancy_penalty"] = s_dict.get("redundancy_penalty", 1.0)
         s_dict["effective_score"] = s_dict.get("effective_score", s_dict["score"])

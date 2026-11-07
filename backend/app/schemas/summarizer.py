@@ -28,6 +28,8 @@ class SentenceInfo(BaseModel):
     lemmas: Optional[List[str]] = Field(default=[], description="Lemmatized token roots")
     has_dialogue: Optional[bool] = Field(default=False, description="Whether conversational or dialogue markers were detected")
     dialogue_boost: Optional[float] = Field(default=1.0, description="Dialogue / quote multiplier applied (e.g. 1.15)")
+    has_critical_keyword: Optional[bool] = Field(default=False, description="Whether high-stakes legal/medical keywords were detected")
+    critical_keywords: Optional[List[str]] = Field(default=[], description="List of matched high-stakes keywords in this sentence")
     has_high_overlap: Optional[bool] = Field(default=False, description="Whether this sentence had >50% word overlap with an earlier selected sentence")
     redundancy_penalty: Optional[float] = Field(default=1.0, description="MMR redundancy penalty factor applied (e.g. 0.50)")
     effective_score: Optional[float] = Field(default=0.0, description="Final score after dialogue boost and MMR penalty")

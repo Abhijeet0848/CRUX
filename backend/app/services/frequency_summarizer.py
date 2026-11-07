@@ -53,7 +53,9 @@ class FrequencySummarizer:
                     "id": idx + 1,
                     "text": sentence,
                     "score": 0.0,
-                    "token_count": 0
+                    "token_count": 0,
+                    "has_critical_keyword": False,
+                    "critical_keywords": []
                 })
                 continue
 
@@ -70,11 +72,18 @@ class FrequencySummarizer:
             elif idx == 1:
                 normalized_score *= 1.10
 
+            # Critical Keyword Booster (Legal/Medical High-Stakes Clauses)
+            has_critical, matched_keywords = Preprocessor.check_critical_keywords(sentence)
+            if has_critical:
+                normalized_score *= Preprocessor.CRITICAL_KEYWORD_BOOST
+
             scored_sentences.append({
                 "id": idx + 1,
                 "text": sentence,
                 "score": round(normalized_score, 4),
-                "token_count": len(tokens)
+                "token_count": len(tokens),
+                "has_critical_keyword": has_critical,
+                "critical_keywords": matched_keywords
             })
         return scored_sentences
 

@@ -14,7 +14,7 @@ Preserves original sentence text and position indices to guarantee 100% factual 
 
 import re
 import html
-from typing import List, Dict, Set, Any
+from typing import List, Dict, Set, Any, Tuple
 
 # Curated English stop words list
 ENGLISH_STOP_WORDS: Set[str] = {
@@ -73,9 +73,79 @@ try:
 except Exception:
     _LEMMATIZER = None
 
+# Curated High-Stakes Critical Keywords (Legal, Contractual, Medical & Safety)
+CRITICAL_KEYWORDS: Set[str] = {
+    # Legal & Contractual Obligations
+    "indemnify", "indemnification", "indemnity", "indemnified",
+    "liability", "liabilities", "liable",
+    "termination", "terminate", "terminated", "terminates",
+    "penalty", "penalties", "penalize", "penalized",
+    "breach", "breached", "breaches", "breaching",
+    "warranty", "warranties", "warrant", "warranted",
+    "obligation", "obligations", "obligate", "obligated", "obligatory",
+    "confidential", "confidentiality",
+    "dispute", "disputes", "disputed",
+    "jurisdiction", "jurisdictional",
+    "arbitration", "arbitrate", "arbitrator",
+    "infringement", "infringe", "infringed",
+    "negligence", "negligent",
+    "severability",
+    "governing", "governed",
+    "damages", "liquidated",
+
+    # Medical, Clinical & Safety
+    "dosage", "dosages", "dose", "doses",
+    "contraindication", "contraindications", "contraindicated",
+    "adverse",
+    "toxicity", "toxic",
+    "overdose", "overdosed",
+    "precaution", "precautions", "precautionary",
+    "hazard", "hazardous", "hazards",
+    "lethal", "fatal", "mortality",
+    "warning", "warnings",
+    "complication", "complications",
+
+    # Hindi High-Stakes Terms
+    "दायित्व", "हर्जाना", "समाप्ति", "उल्लंघन", "खुराक", "दुष्प्रभाव", "चेतावनी", "हानि", "दंड", "प्रतिबंध"
+}
+
+# Massive scoring multiplier applied to sentences with high-stakes clauses (2.5x)
+CRITICAL_KEYWORD_BOOST: float = 2.5
+
 
 class Preprocessor:
     """Provides modular, multilingual preprocessing operations for extractive summarization."""
+
+    CRITICAL_KEYWORDS: Set[str] = CRITICAL_KEYWORDS
+    CRITICAL_KEYWORD_BOOST: float = CRITICAL_KEYWORD_BOOST
+
+    @classmethod
+    def check_critical_keywords(cls, sentence: str) -> Tuple[bool, List[str]]:
+        """
+        Critical Keyword Booster Checker:
+        Detects high-stakes legal (indemnity, liability, breach, termination, penalty)
+        and medical/safety (dosage, contraindication, adverse, toxicity, overdose) terms.
+        Returns:
+            (has_critical, matched_keywords_list)
+        """
+        if not sentence or not isinstance(sentence, str):
+            return False, []
+
+        s_lower = sentence.lower()
+        matched: List[str] = []
+
+        # Check multi-word phrases first
+        for phrase in ("side effect", "side effects", "adverse reaction", "adverse effect", "liquidated damages"):
+            if phrase in s_lower:
+                matched.append(phrase)
+
+        # Extract words using regex boundary isolation
+        tokens = set(re.findall(r'[a-zA-Z\u0900-\u097F]+', s_lower))
+        for token in tokens:
+            if token in cls.CRITICAL_KEYWORDS and token not in matched:
+                matched.append(token)
+
+        return bool(matched), matched
 
     @staticmethod
     def detect_language(text: str) -> str:

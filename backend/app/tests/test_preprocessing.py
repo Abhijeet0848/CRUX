@@ -109,6 +109,25 @@ class TestPreprocessing(unittest.TestCase):
         self.assertEqual(sentences[1], "Second sentence with quotes.")
         self.assertEqual(sentences[2], "Third sentence with curly quotes.")
 
+    def test_check_critical_keywords(self):
+        legal_text = "The vendor shall indemnify the client against all liabilities for any breach."
+        has_crit, matched = Preprocessor.check_critical_keywords(legal_text)
+        self.assertTrue(has_crit)
+        self.assertIn("indemnify", matched)
+        self.assertIn("liabilities", matched)
+        self.assertIn("breach", matched)
+
+        medical_text = "Standard dosage is 10mg and contraindication applies to hypertensive patients."
+        has_crit, matched = Preprocessor.check_critical_keywords(medical_text)
+        self.assertTrue(has_crit)
+        self.assertIn("dosage", matched)
+        self.assertIn("contraindication", matched)
+
+        neutral_text = "The sunny morning sky welcomed birds singing in the garden."
+        has_crit, matched = Preprocessor.check_critical_keywords(neutral_text)
+        self.assertFalse(has_crit)
+        self.assertEqual(matched, [])
+
     def test_preprocess_structured_output(self):
         raw = "<p>Quantum computers use qubits. Classical systems use binary bits.</p>"
         result = Preprocessor.preprocess(raw)

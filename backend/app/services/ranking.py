@@ -261,6 +261,8 @@ class RankingService:
                     "token_count": item.get("token_count", 0),
                     "has_dialogue": item.get("has_dialogue", False),
                     "dialogue_boost": item.get("dialogue_boost", 1.0),
+                    "has_critical_keyword": item.get("has_critical_keyword", False),
+                    "critical_keywords": item.get("critical_keywords", []),
                     "has_high_overlap": False,
                     "redundancy_penalty": 1.0
                 })

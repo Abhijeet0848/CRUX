@@ -52,7 +52,9 @@ class TfidfSummarizer:
                             "id": idx + 1,
                             "text": sentence,
                             "score": 0.0,
-                            "token_count": 0
+                            "token_count": 0,
+                            "has_critical_keyword": False,
+                            "critical_keywords": []
                         })
                         continue
 
@@ -67,11 +69,18 @@ class TfidfSummarizer:
                     elif idx == 1:
                         sentence_score *= 1.10
 
+                    # Critical Keyword Booster (Legal/Medical High-Stakes Clauses)
+                    has_critical, matched_keywords = Preprocessor.check_critical_keywords(sentence)
+                    if has_critical:
+                        sentence_score *= Preprocessor.CRITICAL_KEYWORD_BOOST
+
                     scored.append({
                         "id": idx + 1,
                         "text": sentence,
                         "score": round(float(sentence_score), 4),
-                        "token_count": len(tokens)
+                        "token_count": len(tokens),
+                        "has_critical_keyword": has_critical,
+                        "critical_keywords": matched_keywords
                     })
                 return scored
             except Exception:
@@ -95,7 +104,9 @@ class TfidfSummarizer:
                     "id": idx + 1,
                     "text": sentence,
                     "score": 0.0,
-                    "token_count": 0
+                    "token_count": 0,
+                    "has_critical_keyword": False,
+                    "critical_keywords": []
                 })
                 continue
             tf = Counter(tokens)
@@ -109,11 +120,18 @@ class TfidfSummarizer:
             elif idx == 1:
                 score *= 1.10
 
+            # Critical Keyword Booster (Legal/Medical High-Stakes Clauses)
+            has_critical, matched_keywords = Preprocessor.check_critical_keywords(sentence)
+            if has_critical:
+                score *= Preprocessor.CRITICAL_KEYWORD_BOOST
+
             scored.append({
                 "id": idx + 1,
                 "text": sentence,
                 "score": round(score, 4),
-                "token_count": doc_len
+                "token_count": doc_len,
+                "has_critical_keyword": has_critical,
+                "critical_keywords": matched_keywords
             })
         return scored
 

@@ -56,13 +56,20 @@ class HybridSummarizer:
             elif i == 1:
                 combined_score *= 1.10
 
+            # Critical Keyword Booster (Legal/Medical High-Stakes Clauses)
+            has_critical, matched_keywords = Preprocessor.check_critical_keywords(sentences[i])
+            if has_critical:
+                combined_score *= Preprocessor.CRITICAL_KEYWORD_BOOST
+
             hybrid_scored.append({
                 "id": i + 1,
                 "text": sentences[i],
                 "score": round(combined_score, 4),
                 "token_count": freq_scored[i]["token_count"],
                 "freq_score": round(freq_scored[i]["score"], 4),
-                "tfidf_score": round(tfidf_scored[i]["score"], 4)
+                "tfidf_score": round(tfidf_scored[i]["score"], 4),
+                "has_critical_keyword": has_critical,
+                "critical_keywords": matched_keywords
             })
         return hybrid_scored
 
