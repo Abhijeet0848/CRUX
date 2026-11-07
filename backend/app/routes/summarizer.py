@@ -56,20 +56,15 @@ def summarize_text(req: SummarizeRequest):
     """
     start_time = time.perf_counter()
 
-    # Step 1: Text Cleaning
+    # Step 1: Text Cleaning & Validation
     cleaned_text = Preprocessor.clean_text(req.text)
-    if not cleaned_text:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Input text contains no valid characters after sanitization."
-        )
+    words = cleaned_text.split() if cleaned_text else []
+    sentences = Preprocessor.segment_sentences(cleaned_text) if cleaned_text else []
 
-    # Step 2: Sentence Segmentation
-    sentences = Preprocessor.segment_sentences(cleaned_text)
-    if not sentences:
+    if not cleaned_text or len(words) < 3 or len(sentences) < 1:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="No valid sentences could be segmented from the input text."
+            detail="Text is too short to summarize. Please provide a longer document."
         )
 
     # Validate sentence count target
@@ -271,17 +266,13 @@ def compare_algorithms(req: CompareRequest):
     and optional ROUGE-1, ROUGE-2, and ROUGE-L metrics.
     """
     cleaned_text = Preprocessor.clean_text(req.text)
-    if not cleaned_text:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Input text contains no valid characters after sanitization."
-        )
+    words = cleaned_text.split() if cleaned_text else []
+    sentences = Preprocessor.segment_sentences(cleaned_text) if cleaned_text else []
 
-    sentences = Preprocessor.segment_sentences(cleaned_text)
-    if not sentences:
+    if not cleaned_text or len(words) < 3 or len(sentences) < 1:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="No valid sentences could be segmented from input text."
+            detail="Text is too short to summarize. Please provide a longer document."
         )
 
     available_sentences = len(sentences)

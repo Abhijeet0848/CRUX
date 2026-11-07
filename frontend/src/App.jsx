@@ -56,8 +56,10 @@ export default function App() {
   }, [currentView]);
 
   const handleSummarize = async () => {
-    if (!text.trim()) {
-      setError('Please paste or type an article before summarizing.');
+    const trimmed = text.trim();
+    const wordTokens = trimmed ? trimmed.split(/\s+/).filter((w) => /[a-zA-Z0-9\u0900-\u097F]/.test(w)) : [];
+    if (wordTokens.length < 3) {
+      setError('Text is too short to summarize. Please provide a longer document (at least 3 words).');
       return;
     }
     setError('');
@@ -74,14 +76,23 @@ export default function App() {
       setSummaryData(data);
     } catch (err) {
       console.error(err);
-      setError(err.message || 'Failed to generate summary. Please check backend connection.');
+      let msg = err.response?.data?.detail || err.message || 'An unknown error occurred';
+      if (Array.isArray(msg)) {
+        msg = msg.map((d) => d.msg || JSON.stringify(d)).join(', ');
+      } else if (typeof msg === 'object' && msg !== null) {
+        msg = msg.msg || JSON.stringify(msg);
+      }
+      setError(String(msg));
     } finally {
       setLoading(false);
     }
   };
 
   const handleRunCompare = async () => {
-    if (!text.trim()) {
+    const trimmed = text.trim();
+    const wordTokens = trimmed ? trimmed.split(/\s+/).filter((w) => /[a-zA-Z0-9\u0900-\u097F]/.test(w)) : [];
+    if (wordTokens.length < 3) {
+      setError('Text is too short to summarize. Please provide a longer document (at least 3 words).');
       return;
     }
     setError('');
@@ -98,7 +109,13 @@ export default function App() {
       setCompareData(data);
     } catch (err) {
       console.error(err);
-      setError(err.message || 'Algorithm comparison failed.');
+      let msg = err.response?.data?.detail || err.message || 'An unknown error occurred';
+      if (Array.isArray(msg)) {
+        msg = msg.map((d) => d.msg || JSON.stringify(d)).join(', ');
+      } else if (typeof msg === 'object' && msg !== null) {
+        msg = msg.msg || JSON.stringify(msg);
+      }
+      setError(String(msg));
     } finally {
       setCompareLoading(false);
     }
@@ -138,9 +155,9 @@ export default function App() {
       {/* Error Alert */}
       {error && (
         <div className="flex-shrink-0 min-w-0 mx-3 sm:mx-6 my-2 p-3 bg-red-50/90 border border-red-200 rounded-xl text-xs sm:text-sm font-semibold text-red-900 flex items-center justify-between shadow-xs">
-          <div className="flex items-center gap-2 min-w-0 truncate">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
             <span className="flex-shrink-0">⚠️</span>
-            <span className="truncate">{error}</span>
+            <span className="break-words leading-relaxed">{error}</span>
           </div>
           <button
             onClick={() => setError('')}

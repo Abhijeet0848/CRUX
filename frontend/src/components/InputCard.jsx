@@ -134,7 +134,7 @@ export default function InputCard({
   const handleKeyDown = (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
       e.preventDefault();
-      if (text.trim() && !loading) {
+      if (wordCount >= 3 && !loading) {
         onSummarize();
       }
     }
@@ -145,7 +145,7 @@ export default function InputCard({
     if (onClear) onClear();
   };
 
-  const isSummarizeDisabled = !text.trim() || loading;
+  const isSummarizeDisabled = wordCount < 3 || loading;
   const tfidfWeight = 100 - frequencyWeight;
 
   return (
@@ -370,6 +370,7 @@ export default function InputCard({
           type="button"
           onClick={onSummarize}
           disabled={isSummarizeDisabled}
+          title={wordCount < 3 ? 'Enter at least 3 words to summarize' : 'Summarize Text'}
           className={`w-full py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${
             isSummarizeDisabled
               ? 'bg-slate-50 border border-slate-200 text-slate-400 cursor-not-allowed shadow-none'

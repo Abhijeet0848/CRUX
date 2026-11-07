@@ -56,7 +56,7 @@ class SummaryStatistics(BaseModel):
 
 
 class SummarizeRequest(BaseModel):
-    text: str = Field(..., min_length=5, description="Input text or document to summarize")
+    text: str = Field(..., min_length=1, description="Input text or document to summarize")
     method: str = Field(default="frequency", description="Summarization method: 'frequency', 'tfidf', or 'hybrid'")
     num_sentences: int = Field(default=3, ge=1, le=20, description="Target number of sentences in summary")
     weight_frequency: Optional[float] = Field(default=0.5, ge=0.0, le=1.0, description="Hybrid weight for Frequency (0.0 - 1.0)")
@@ -77,9 +77,7 @@ class SummarizeRequest(BaseModel):
     def validate_text(cls, v: str) -> str:
         if not v or not v.strip():
             raise ValueError("Input text cannot be empty or whitespace only.")
-        if len(v.strip()) < 10:
-            raise ValueError("Input text is too short to summarize (minimum 10 characters required).")
-        return v.strip()
+        return v
 
 
 class SummarizeResponse(BaseModel):

@@ -44,7 +44,16 @@ export async function summarizeText({ text, method = "frequency", num_sentences 
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.detail || `Server responded with status ${response.status}`);
+    let msg = errorData.detail;
+    if (Array.isArray(msg)) {
+      msg = msg.map((d) => d.msg || JSON.stringify(d)).join(", ");
+    } else if (typeof msg === "object" && msg !== null) {
+      msg = msg.msg || JSON.stringify(msg);
+    }
+    const finalMsg = msg || `Server responded with status ${response.status}`;
+    const err = new Error(finalMsg);
+    err.response = { data: errorData, status: response.status };
+    throw err;
   }
 
   return response.json();
@@ -67,7 +76,16 @@ export async function compareAlgorithms({ text, num_sentences = 3, weight_freque
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.detail || `Comparison failed (${response.status})`);
+    let msg = errorData.detail;
+    if (Array.isArray(msg)) {
+      msg = msg.map((d) => d.msg || JSON.stringify(d)).join(", ");
+    } else if (typeof msg === "object" && msg !== null) {
+      msg = msg.msg || JSON.stringify(msg);
+    }
+    const finalMsg = msg || `Comparison failed (${response.status})`;
+    const err = new Error(finalMsg);
+    err.response = { data: errorData, status: response.status };
+    throw err;
   }
 
   return response.json();
