@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Zap, Sparkles } from 'lucide-react';
+import { Zap } from 'lucide-react';
 import StatsGrid from './StatsGrid';
 import ScoreChart from './ScoreChart';
 import EmptyState from './EmptyState';

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Sparkles,
   ArrowRight,
   ChevronLeft,
   Target,
@@ -73,7 +72,7 @@ const ACCENT = {
  * balanced icon badges, and text-only CTA buttons.
  */
 export default function EmptyState({
-  icon: Icon = Sparkles,
+  icon: Icon,
   iconColor,
   accent = 'indigo',
   title,

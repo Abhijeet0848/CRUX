@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Globe,
-  Sparkles,
+  FileText,
   Layers,
   Scale,
   History,
@@ -30,7 +30,7 @@ const PAGE_TITLES = {
  * 4 Core Navigation Tabs (Left Group)
  */
 const NAV_TABS = [
-  { id: 'workspace', label: 'Summarize', icon: Sparkles },
+  { id: 'workspace', label: 'Summarize', icon: FileText },
   { id: 'nlp_analysis', label: 'NLP Analysis', icon: Layers, requiresSummary: true },
   { id: 'compare', label: 'Compare Methods', icon: Scale },
   { id: 'history', label: 'History', icon: History },

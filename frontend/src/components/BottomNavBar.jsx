@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-  Sparkles,
+  Home,
   Layers,
   ListOrdered,
   Scale,
@@ -28,7 +28,7 @@ export default function BottomNavBar({
     {
       id: 'workspace',
       label: 'Home',
-      icon: Sparkles,
+      icon: Home,
       tooltip: 'Summarizer Studio',
     },
     {

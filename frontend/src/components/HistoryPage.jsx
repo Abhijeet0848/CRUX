@@ -10,7 +10,6 @@ import {
   Inbox,
   RefreshCw,
   Clock,
-  Sparkles
 } from 'lucide-react';
 import { fetchHistory, deleteHistoryRecord, clearAllHistory, fetchHistoryRecord } from '../services/api';
 import EmptyState from './EmptyState';

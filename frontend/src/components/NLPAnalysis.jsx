@@ -6,7 +6,6 @@ import {
   Filter,
   GitBranch,
   Zap,
-  Sparkles,
   AlertCircle,
   Loader2,
   RefreshCw,

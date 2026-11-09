@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import {
   Zap,
-  Sparkles,
   CheckCircle2,
   Scale,
   RefreshCw,

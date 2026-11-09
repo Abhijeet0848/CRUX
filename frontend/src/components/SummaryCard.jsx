@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import {
   FileText,
-  Sparkles,
   Copy,
   Check,
   Download,
@@ -74,33 +73,27 @@ export default function SummaryCard({
       {/* 5. Card Header (Unified SaaS Header) */}
       <div className="flex-shrink-0 min-w-0 flex items-center justify-between gap-2 sm:gap-3 pb-3 border-b border-slate-100 mb-3 sm:mb-4">
         {/* Title block */}
-        <div className="flex items-center gap-3 min-w-0 flex-1">
-          {/* Icon Badge: w-10 h-10 rounded-xl bg-indigo-50 */}
-          <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 flex-shrink-0">
-            <Sparkles className="w-5 h-5" />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 min-w-0">
+            <h2 className="text-base sm:text-lg font-bold text-slate-900 leading-tight">
+              Summary
+            </h2>
+            {summary && !loading && (
+              <span className="hidden sm:inline-flex items-center gap-1 text-[10px] sm:text-xs font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full flex-shrink-0 whitespace-nowrap">
+                <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                <span>Exact Match</span>
+              </span>
+            )}
           </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2 min-w-0">
-              <h2 className="text-base sm:text-lg font-bold text-slate-900 leading-tight">
-                Summary
-              </h2>
-              {summary && !loading && (
-                <span className="hidden sm:inline-flex items-center gap-1 text-[10px] sm:text-xs font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full flex-shrink-0 whitespace-nowrap">
-                  <ShieldCheck className="w-3 h-3 text-emerald-600" />
-                  <span>Exact Match</span>
-                </span>
-              )}
-            </div>
-            <p className="text-xs sm:text-sm text-slate-500 font-normal leading-snug">
-              {summary && !loading
-                ? `${summaryWordCount} words · ${compressionPercent > 0
-                  ? `${compressionPercent}% shorter`
-                  : 'Full text extracted'
-                } · ${sentenceLines.length} ${sentenceLines.length === 1 ? 'sentence' : 'sentences'
-                }`
-                : 'Extracted salient sentences'}
-            </p>
-          </div>
+          <p className="text-xs sm:text-sm text-slate-500 font-normal leading-snug">
+            {summary && !loading
+              ? `${summaryWordCount} words · ${compressionPercent > 0
+                ? `${compressionPercent}% shorter`
+                : 'Full text extracted'
+              } · ${sentenceLines.length} ${sentenceLines.length === 1 ? 'sentence' : 'sentences'
+              }`
+              : 'Extracted salient sentences'}
+          </p>
         </div>
 
         {/* Action Buttons: Copy & Download */}

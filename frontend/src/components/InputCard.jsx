@@ -2,7 +2,6 @@ import React, { useRef, useMemo, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
   FileText,
-  Sparkles,
   X,
   Loader2,
   AlertTriangle,
@@ -383,10 +382,7 @@ export default function InputCard({
               <span>Summarizing...</span>
             </>
           ) : (
-            <>
-              <Sparkles className={`w-4 h-4 flex-shrink-0 ${isSummarizeDisabled ? 'text-slate-400' : 'text-white'}`} />
-              <span>Summarize Text</span>
-            </>
+            <span>Summarize Text</span>
           )}
         </button>
       </div>
