@@ -159,10 +159,16 @@ export default function NLPAnalysis({
 
   // Collect raw tokens from sentences
   const sampleRawTokens = sentences.length > 0
-    ? sentences.slice(0, 3).flatMap(s => s.raw_tokens || (s.text ? s.text.toLowerCase().match(/[\u0900-\u0963\u0966-\u097Fa-zA-Z0-9'-]+/g) || [] : [])).slice(0, 35)
-    : (originalText ? originalText.toLowerCase().match(/[\u0900-\u0963\u0966-\u097Fa-zA-Z0-9'-]+/g)?.slice(0, 35) || [] : []);
+    ? sentences.slice(0, 3).flatMap(s => s.raw_tokens || (s.text ? s.text.toLowerCase().match(/[\u0900-\u0963\u0966-\u0D7F\u0E00-\uFAFFa-zA-Z0-9'-]+/g) || [] : [])).slice(0, 35)
+    : (originalText ? originalText.toLowerCase().match(/[\u0900-\u0963\u0966-\u0D7F\u0E00-\uFAFFa-zA-Z0-9'-]+/g)?.slice(0, 35) || [] : []);
 
-  const detectedLang = prepMeta.language || summaryData.detected_language || (/[\u0900-\u097F]/.test(originalText || '') ? 'hi' : 'en');
+  const detectedLang = prepMeta.language || summaryData.detected_language || (
+    /[\u0900-\u097F]/.test(originalText || '')
+      ? 'hi'
+      : /[\u0980-\u0D7F\u0E00-\uFAFF]/.test(originalText || '')
+      ? 'other'
+      : 'en'
+  );
 
   return (
     <div className="p-3 sm:p-4 lg:p-6 pb-24 lg:pb-6 space-y-5 animate-in fade-in duration-200">
@@ -177,9 +183,15 @@ export default function NLPAnalysis({
             <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full border ${
               detectedLang === 'hi'
                 ? 'bg-amber-50 text-amber-800 border-amber-200'
+                : detectedLang === 'other'
+                ? 'bg-purple-50 text-purple-800 border-purple-200'
                 : 'bg-slate-100 text-slate-700 border-slate-200'
             }`}>
-              {detectedLang === 'hi' ? '🇮🇳 Hindi (हिंदी)' : '🌐 English (EN)'}
+              {detectedLang === 'hi'
+                ? '🇮🇳 Hindi (हिंदी)'
+                : detectedLang === 'other'
+                ? '🌐 Others (Other Script)'
+                : '🌐 English (EN)'}
             </span>
           </div>
           <p className="text-xs sm:text-sm font-normal text-slate-600">

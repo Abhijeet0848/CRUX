@@ -150,16 +150,23 @@ class Preprocessor:
     @staticmethod
     def detect_language(text: str) -> str:
         """
-        Detects if document is Hindi ('hi') or English ('en').
-        Checks for presence of Devanagari unicode script range (\u0900-\u097F).
+        Detects if document is Hindi ('hi'), English ('en'), or Others ('other').
+        Checks for presence of Devanagari unicode script range (\u0900-\u097F),
+        Latin characters ([a-zA-Z]), and other scripts (such as Gujarati \u0A80-\u0AFF, etc.).
         """
         if not text:
             return "en"
         devanagari_chars = len(re.findall(r'[\u0900-\u097F]', text))
         latin_chars = len(re.findall(r'[a-zA-Z]', text))
+        other_script_chars = len(re.findall(r'[\u0980-\u0D7F\u0E00-\uFAFF]', text))
+
         if devanagari_chars > 3 and devanagari_chars >= latin_chars * 0.3:
             return "hi"
-        return "en"
+        if other_script_chars > 3 and other_script_chars >= latin_chars * 0.3:
+            return "other"
+        if latin_chars > 0 or not other_script_chars:
+            return "en"
+        return "other"
 
     @staticmethod
     def clean_text(raw_text: str, preserve_newlines: bool = True) -> str:
@@ -319,15 +326,15 @@ class Preprocessor:
     @staticmethod
     def tokenize(text: str, lowercase: bool = True) -> List[str]:
         """
-        Step 3 & 4: Word Tokenization & Lowercasing (Supports both Latin English and Devanagari Hindi)
+        Step 3 & 4: Word Tokenization & Lowercasing (Supports Latin English, Devanagari Hindi, Gujarati, and other Indic/Unicode scripts)
         Excludes Devanagari sentence terminators (। \u0964 and ॥ \u0965) from word tokens.
         """
         if not text:
             return []
         if lowercase:
             text = text.lower()
-        # \u0900-\u0963 and \u0966-\u097F covers Devanagari letters, matras, signs, and numbers without \u0964/\u0965 (danda)
-        return re.findall(r"[\u0900-\u0963\u0966-\u097Fa-zA-Z0-9'-]+", text)
+        # \u0900-\u0963 and \u0966-\u0D7F covers Devanagari, Gujarati, Bengali, Tamil, etc., without danda \u0964/\u0965
+        return re.findall(r"[\u0900-\u0963\u0966-\u0D7F\u0E00-\uFAFFa-zA-Z0-9'-]+", text)
 
     @classmethod
     def lemmatize_word(cls, word: str, lang: str = "en") -> str:
@@ -375,12 +382,18 @@ class Preprocessor:
         """
         Steps 5 & 6: Stop-word Removal & Lemmatization
         """
-        stop_words = HINDI_STOP_WORDS if lang == "hi" else ENGLISH_STOP_WORDS
+        if lang == "hi":
+            stop_words = HINDI_STOP_WORDS
+        elif lang == "en":
+            stop_words = ENGLISH_STOP_WORDS
+        else:
+            stop_words = set()
+
         meaningful = []
         for token in raw_tokens:
             clean = token.strip("'-")
             if clean and clean.lower() not in stop_words and clean not in stop_words and not clean.isdigit() and len(clean) > 1:
-                lemma = cls.lemmatize_word(clean, lang=lang)
+                lemma = cls.lemmatize_word(clean, lang=lang) if lang in ("en", "hi") else clean
                 if lemma and lemma.lower() not in stop_words and lemma not in stop_words:
                     meaningful.append(lemma)
         return meaningful

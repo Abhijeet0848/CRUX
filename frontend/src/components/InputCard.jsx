@@ -51,7 +51,7 @@ export default function InputCard({
   // Accurate word count: filters out standalone bullet symbols (-, *, •, –, —)
   const wordTokens = useMemo(() => {
     return cleanClientText
-      ? cleanClientText.split(/\s+/).filter((w) => /[a-zA-Z0-9\u0900-\u097F]/.test(w))
+      ? cleanClientText.split(/\s+/).filter((w) => /[a-zA-Z0-9\u0900-\u0D7F\u0E00-\uFAFF]/.test(w))
       : [];
   }, [cleanClientText]);
   const wordCount = wordTokens.length;
@@ -79,11 +79,11 @@ export default function InputCard({
         const parts = line.match(/[^.!?।॥]+(?:[.!?।॥]+["'”’\)\]]*|$)/g) || [];
         for (const p of parts) {
           const trimmed = p.trim();
-          if (trimmed && /[a-zA-Z0-9\u0900-\u097F]/.test(trimmed)) {
+          if (trimmed && /[a-zA-Z0-9\u0900-\u0D7F\u0E00-\uFAFF]/.test(trimmed)) {
             clientSentences.push(trimmed);
           }
         }
-      } else if (/[a-zA-Z0-9\u0900-\u097F]/.test(line)) {
+      } else if (/[a-zA-Z0-9\u0900-\u0D7F\u0E00-\uFAFF]/.test(line)) {
         clientSentences.push(line);
       }
     }
@@ -127,8 +127,24 @@ export default function InputCard({
     ? Math.min(100, Math.round((currentSliderVal / sentenceCount) * 100))
     : null;
 
-  // Language check (Devanagari vs. Latin script)
-  const isHindi = /[\u0900-\u097F]/.test(text);
+  // Language detection: Devanagari Hindi vs. Latin English vs. Others (e.g. Gujarati, Bengali, etc.)
+  const detectedLanguage = useMemo(() => {
+    if (!text || !text.trim()) return 'en';
+    const devanagariCount = (text.match(/[\u0900-\u097F]/g) || []).length;
+    const latinCount = (text.match(/[a-zA-Z]/g) || []).length;
+    const otherScriptCount = (text.match(/[\u0980-\u0D7F\u0E00-\uFAFF]/g) || []).length;
+
+    if (devanagariCount > 3 && devanagariCount >= latinCount * 0.3) {
+      return 'hi';
+    }
+    if (otherScriptCount > 3 && otherScriptCount >= latinCount * 0.3) {
+      return 'other';
+    }
+    if (latinCount > 0) {
+      return 'en';
+    }
+    return otherScriptCount > 0 ? 'other' : 'en';
+  }, [text]);
 
   const handleKeyDown = (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
@@ -172,12 +188,18 @@ export default function InputCard({
           {text.trim() && (
             <span
               className={`flex-shrink-0 whitespace-nowrap text-xs font-semibold px-2.5 py-1 rounded-full border transition-all ${
-                isHindi
+                detectedLanguage === 'hi'
                   ? 'bg-amber-50 text-amber-800 border-amber-300'
+                  : detectedLanguage === 'other'
+                  ? 'bg-purple-50 text-purple-700 border-purple-300'
                   : 'bg-indigo-50 text-indigo-700 border-indigo-200'
               }`}
             >
-              {isHindi ? '🇮🇳 Hindi' : '🌐 English'}
+              {detectedLanguage === 'hi'
+                ? '🇮🇳 Hindi'
+                : detectedLanguage === 'other'
+                ? '🌐 Others'
+                : '🌐 English'}
             </span>
           )}
         </div>
@@ -232,7 +254,7 @@ export default function InputCard({
             }
           }}
           onKeyDown={handleKeyDown}
-          placeholder="Paste or type your English or Hindi article here..."
+          placeholder="Paste or type your English, Hindi, Gujarati or other article here..."
           className="w-full min-h-[120px] sm:min-h-[250px] resize-none overflow-hidden lg:overflow-y-auto lg:h-full bg-slate-50/50 border border-slate-200 rounded-xl p-3 sm:p-4 text-slate-700 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow outline-none text-xs sm:text-sm leading-relaxed"
         />
       </div>
