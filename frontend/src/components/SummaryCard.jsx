@@ -32,10 +32,12 @@ export default function SummaryCard({
 
   const formatSentenceLines = (text) => {
     if (!text) return [];
-    if (text.includes('\n')) {
-      return text.split(/\n+/).map((s) => s.trim()).filter(Boolean);
+    // Sanitize any stray private-use (PUA) glyphs or unprintable controls (e.g. \uF07F PDF bullet glyphs)
+    const cleanText = text.replace(/[\uE000-\uF8FF\uFFFD\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, '').trim();
+    if (cleanText.includes('\n')) {
+      return cleanText.split(/\n+/).map((s) => s.trim()).filter(Boolean);
     }
-    return (text.match(/[^.!?।॥\n]+(?:[.!?।॥]+["'”’\)\]]*|$)/g) || [text])
+    return (cleanText.match(/[^.!?।॥\n]+(?:[.!?।॥]+["'”’\)\]]*|$)/g) || [cleanText])
       .map((s) => s.trim())
       .filter(Boolean);
   };

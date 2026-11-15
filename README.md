@@ -130,6 +130,8 @@ graph TD
 
 The summarization pipeline executes 8 modular stages:
 
+*See [`docs/nlp_pipeline.md`](docs/nlp_pipeline.md) for the exhaustive technical breakdown, mathematical formulations, and stage-by-stage implementation.*
+
 ```
 Raw Document / Text
    │

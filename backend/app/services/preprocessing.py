@@ -177,6 +177,9 @@ class Preprocessor:
         text = html.unescape(raw_text)
         text = re.sub(r"<[^>]+>", " ", text)
         text = text.replace("\xa0", " ").replace("\u200b", "").replace("&nbsp;", " ")
+        # Strip Private Use Area (PUA) characters (e.g. \uf07f from Word/PDF bullets),
+        # replacement characters (\ufffd), and unprintable ASCII/Unicode control characters
+        text = re.sub(r'[\ue000-\uf8ff\ufffd\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]', '', text)
         
         # 1. Strip Markdown citation links: [\[50\]](...) or [50](...)
         text = re.sub(r'\[(?:\\\[|\[)?\s*\d+\s*(?:\\\]|\])?\]\([^)]+\)', '', text)
@@ -217,12 +220,16 @@ class Preprocessor:
     def clean_sentence(cls, sentence: str) -> str:
         """
         Cleans an extracted sentence string:
-        Strips leading and trailing whitespace and quotes (" ' “ ”)
+        Strips leading and trailing whitespace, quotes (" ' “ ”),
+        and unprintable PUA/control characters (e.g. \uf07f)
         without altering internal quotation marks inside the sentence body.
         """
         if not sentence or not isinstance(sentence, str):
             return ""
-        return sentence.strip().strip('"\'“”').strip()
+        s = sentence.strip()
+        # Strip private use area and unprintable control characters
+        s = re.sub(r'[\ue000-\uf8ff\ufffd\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]', '', s)
+        return s.strip().strip('"\'“”').strip()
 
     @classmethod
     def segment_sentences(cls, cleaned_text: str) -> List[str]:
